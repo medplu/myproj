@@ -125,7 +125,7 @@ const Post = ({ post }) => {
 
 	return (
 		<>
-			<div className='flex gap-2 items-start p-4 bg-white border-b border-gray-700'>
+			<div className='flex gap-2 items-start p-4 bg-slate-800 border-b border-gray-700'>
 				<div className='avatar'>
 					<Link to={`/profile/${postOwner.username}`} className='w-8 rounded-full overflow-hidden'>
 						<img src={postOwner.profileImg || "/avatar-placeholder.png"} />
@@ -133,10 +133,10 @@ const Post = ({ post }) => {
 				</div>
 				<div className='flex flex-col flex-1'>
 					<div className='flex gap-2 items-center'>
-						<Link to={`/profile/${postOwner.username}`} className='font-bold'>
+						<Link to={`/profile/${postOwner.username}`} className='font-bold text-white'>
 							{postOwner.fullName}
 						</Link>
-						<span className='text-gray-700 flex gap-1 text-sm'>
+						<span className='text-white flex gap-1 text-sm'>
 							<Link to={`/profile/${postOwner.username}`}>@{postOwner.username}</Link>
 							<span>·</span>
 							<span>{formattedDate}</span>
@@ -151,15 +151,18 @@ const Post = ({ post }) => {
 							</span>
 						)}
 					</div>
-					<div className='flex flex-col gap-3 overflow-hidden'>
+					<div className='flex flex-col gap-3 overflow-hidden text-white'>
 						<span>{post.text}</span>
 						{post.img && (
-							<img
-								src={post.img}
-								className='h-80 object-contain rounded-lg border border-gray-700'
-								alt=''
-							/>
-						)}
+    <div className='h-80 overflow-hidden rounded-lg border border-gray-700'>
+        <img
+            src={post.img}
+            className='object-cover w-full h-full'
+            alt=''
+        />
+    </div>
+)}
+
 					</div>
 					<div className='flex justify-between mt-3'>
 						<div className='flex gap-4 items-center w-2/3 justify-between'>
