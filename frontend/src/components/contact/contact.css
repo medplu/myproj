@@ -1,0 +1,11 @@
+.social-link {
+    flex: 1; /* Each icon should take up equal space */
+    text-align: center; /* Center the icon within its container */
+  }
+  
+  @media (max-width: 768px) {
+    .social-link {
+      flex-basis: calc(25% - 1rem); /* Distribute icons evenly with a gap of 1rem */
+    }
+  }
+  
