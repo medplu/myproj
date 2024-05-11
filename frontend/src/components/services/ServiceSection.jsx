@@ -95,9 +95,9 @@ const PatientPage = ({authUser}) => {
     <FaSearch className="text-white" />
   </button>
 </div>
-
+ <h2 className="text-lg font-bold text-white font-mono mb-2 text-center underline-orange-500">Categories </h2>
 <div className="mb-4 glass rounded-box overflow-x-auto">
-  <h2 className="text-lg font-bold text-white font-mono mb-2 text-center">Categories </h2>
+ 
   <div className="flex flex-nowrap space-x-4 pb-4">
     {/* Category Cards */}
     {categories.map((category, index) => (
