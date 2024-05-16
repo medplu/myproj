@@ -114,19 +114,19 @@ const PatientPage = ({ authUser }) => {
 
   return (
     <div className="container mx-auto  bg-gray-900 text-white">
-      <div className="card w-full h-32 bg-base-100 shadow-xl rounded-sm image-full">
+      <div className="card w-full h-80 bg-base-100 shadow-xl image-full">
         <figure><img src="https://res.cloudinary.com/dws2bgxg4/image/upload/v1714938261/c3_caagpo.jpg" alt="Doctor" className="w-full h-48 object-cover" /></figure>
-        <div className="card-body">
+        <div className="">
           <h2 className="card-title">Hello {authUser.username}</h2>
           <p>Welcome, Our Doctors are available</p>
           <div className="card-actions justify-end">
-            <button className="btn btn-primary">Consult now</button>
+            <button className="btn btn-primary">Book</button>
           </div>
         </div>
       </div>
       {/* Your other components */}
       
-       <section className="pb-10 pt-20 lg:pb-20 lg:pt-[120px] dark:bg-dark shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)]">
+       <section className="pb-5 pt-5 lg:pb-20 lg:pt-[120px] dark:bg-dark">
       <div className="container">
       <div className="flex justify-center">
       <div className="inline-flex items-center overflow-hidden rounded-lg border border-stroke dark:border-dark-3">
@@ -152,14 +152,16 @@ const PatientPage = ({ authUser }) => {
       </div>
       </div>
       </section>
-
-      <Slider {...carouselSettings}>
+      <div className="flex overflow-x-scroll pb-10 hide-scroll-bar">
+      <div className="flex flex-nowrap lg:ml-40 md:ml-20 ml-10">
   {categoriesSets[currentIndex]?.map((category, index) => (
     <div key={index} className="p-2">
       <CategoryCard icon={category.icon} title={category.title} description={category.description} />
     </div>
   ))}
-</Slider>
+  </div>
+  </div>
+
 
     
       {/* top doctors */}
