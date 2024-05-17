@@ -13,8 +13,19 @@ import Landing from './pages/landing/Landing';
 import ServicesSection from './components/services/ServiceSection';
 import Sidebar from './components/Sidebar'
 import About from './components/about/About'; // Import the new component
+import DoctorPage from './pages/doctor/DoctorPage';
+
 
 function App() {
+    const doctors = [
+        { id: 1, name: "Dr. Gedion", image: "https://res.cloudinary.com/dws2bgxg4/image/upload/v1714413116/ud5hxekv1kjrnye9k3bu.jpg", profession: "Cardiologist", Bio: "Dr. Gedion is a skilled surgeon" },
+        { id: 2, name: "Dr. Jane", image: "https://res.cloudinary.com/dws2bgxg4/image/upload/v1714938261/c3_caagpo.jpg", profession: "Nephrologist" , Bio: "Dr. Jane is a skilled surgeon"},
+        { id: 3, name: "Dr. Christine", image: "https://res.cloudinary.com/dws2bgxg4/image/upload/v1714938261/c5_nqwsbg.jpg", profession: "Neurology" , Bio: "Dr. Christine is a skilled surgeon"},
+        { id: 4, name: "Dr. Sarah", image: "https://res.cloudinary.com/dws2bgxg4/image/upload/v1713302476/medplus/lqpitkwtbmrkopmf9fn6.jpg", profession: "Pediatrician", Bio: "Dr. Sarah is a skilled surgeon"},
+        { id: 5, name: "Dr. David", image: "https://res.cloudinary.com/dws2bgxg4/image/upload/v1713424680/medplus/vdhawsoagg1029odkjsj.jpg", profession: "Psychiatrist", Bio: "Dr. David is a skilled surgeon"},
+        // Add more doctors as needed
+      ];
+    
     const { data: authUser, isLoading } = useQuery({
         queryKey: ['authUser'],
         queryFn: async () => {
@@ -80,12 +91,19 @@ function App() {
                 />
                 <Route
                     path="/services"
-                    element={authUser ? <ServicesSection authUser={authUser}/> : <Navigate to="login" />}
+                    element={authUser ? <ServicesSection doctors={doctors} authUser={authUser}/> : <Navigate to="login" />}
                 />
                 {/* add the route to about component */}
                 <Route
                     path="/about"
                     element={authUser ? <About /> : <Navigate to="login" />}
+                />
+                {/* add route to DoctorPage  */}
+
+
+                <Route
+                    path="/doctors/:id" // Define the route parameter for the doctor's ID
+                    element={authUser ? <DoctorPage doctors={doctors} /> : <Navigate to="login" />}
                 />
             </Routes>
             {authUser && !isLandingPage && <Sidebar />} {/* Exclude sidebar from landing page */}
