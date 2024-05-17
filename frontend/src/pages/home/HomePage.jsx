@@ -3,6 +3,7 @@ import { IoCloseSharp } from "react-icons/io5";
 import Posts from "../../components/common/Posts";
 import CreatePost from "./CreatePost";
 
+
 const HomePage = () => {
   const [feedType, setFeedType] = useState("forYou");
   const [showCreatePostFullScreen, setShowCreatePostFullScreen] = useState(
@@ -49,12 +50,13 @@ const HomePage = () => {
       </div>
 
       {/* Floating Button */}
-      <button
-        className="fixed bottom-8 right-4 bg-red-500 text-black p-6 rounded-full shadow-lg hover:bg-primary-dark transition duration-300"
-        onClick={handleOpenCreatePostFullScreen}
-      >
-        Create Post
-      </button>
+    
+      <div className="fixed bottom-20 right-4">
+  <button className="bg-blue-500 hover:bg-blue-600 text-white rounded-full py-3 px-4 shadow-lg" onClick={handleOpenCreatePostFullScreen}>
+   Add Post
+  </button>
+</div>
+      
 
       {/* Full-Screen Create Post Modal */}
       {showCreatePostFullScreen && (
