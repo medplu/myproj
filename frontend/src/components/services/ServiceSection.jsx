@@ -17,9 +17,10 @@ import mentalIcon from "../../assets/icons/icons8-advice-48.png";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import {Doctors }from "./Doctors";
+import RecommendedDoctors from "./RecommendedDoctors";
 
-const PatientPage = ({ authUser }) => {
+const PatientPage = ({ authUser, doctors }) => {
+  const [filteredDoctors, setFilteredDoctors] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const categoriesSets = [
     [
@@ -39,18 +40,32 @@ const PatientPage = ({ authUser }) => {
       { icon: pediatricsImage, description: "", title: "Paediatrician" }
     ]
   ];
-  const doctors = [
-    { name: "Dr. Gedion", image: "https://res.cloudinary.com/dws2bgxg4/image/upload/v1714413116/ud5hxekv1kjrnye9k3bu.jpg", profession: "Cardiologist" },
-    { name: "Dr. Jane", image: "https://res.cloudinary.com/dws2bgxg4/image/upload/v1714938261/c3_caagpo.jpg", profession: "Dermatologist" },
-    { name: "Dr. Christine", image: "https://res.cloudinary.com/dws2bgxg4/image/upload/v1714938261/c5_nqwsbg.jpg", profession: "Orthopedic Surgeon" },
-    { name: "Dr. Sarah", image: "https://res.cloudinary.com/dws2bgxg4/image/upload/v1713302476/medplus/lqpitkwtbmrkopmf9fn6.jpg", profession: "Pediatrician" },
-    { name: "Dr. David", image: "https://res.cloudinary.com/dws2bgxg4/image/upload/v1713424680/medplus/vdhawsoagg1029odkjsj.jpg", profession: "Psychiatrist" },
-    // Add more doctors as needed
-  ];
+  
+
   
   const handleSetChange = (index) => {
     setCurrentIndex(index);
+    if (index === 1) {
+      // Filter doctors by the first specialty in the specialties set
+      filterDoctorsBySpecialty(categoriesSets[1][0].title);
+    } else {
+      // Reset filteredDoctors to show all doctors when switching back to Categories
+      setFilteredDoctors([]);
+    }
   };
+  
+  const filterDoctorsBySpecialty = (specialty) => {
+    const filtered = doctors.filter((doctor) => doctor.profession === specialty);
+    setFilteredDoctors(filtered);
+  };
+  
+  const handleCategoryCardClick = (title) => {
+    filterDoctorsBySpecialty(title);
+  };
+  
+   
+  
+  
   const settings = {
     // Other settings...
     slidesToShow: 2,
@@ -113,20 +128,37 @@ const PatientPage = ({ authUser }) => {
   };
 
   return (
-    <div className="container mx-auto  bg-gray-900 text-white">
-      <div className="card w-full h-80 bg-base-100 shadow-xl image-full">
-        <figure><img src="https://res.cloudinary.com/dws2bgxg4/image/upload/v1714938261/c3_caagpo.jpg" alt="Doctor" className="w-full h-48 object-cover" /></figure>
-        <div className="">
-          <h2 className="card-title">Hello {authUser.username}</h2>
-          <p>Welcome, Our Doctors are available</p>
-          <div className="card-actions justify-end">
-            <button className="btn btn-primary">Book</button>
-          </div>
-        </div>
+    <div className="container mx-auto  bg-gray-900 text-white ">
+      <div className="w-full h-50 bg-base-100 shadow-xl image-full relative">
+      <figure><img src="https://res.cloudinary.com/dws2bgxg4/image/upload/v1714938261/c3_caagpo.jpg" alt="Doctor" className="w-full h-48 object-cover" />
+      <div className="absolute top-0 left-0 right-0 bottom-0 bg-black opacity-50"></div>
+      </figure>
+      <div className="absolute top-0  mt-20 mb-4 left-0 right-0 bottom-0 flex flex-col justify-center items-center">
+        <h2 className="card-title text-white text-center font-bold z-10">Hello {authUser.username}</h2>
+        <p className="text-white font-bold z-10">Welcome, Our Doctors are available</p>
+        {/* create a search bar */}
+        <div class="flex items-center justify-between mt-3 px-3 z-10">
+				<div class="hidden relative w-full">
+					<input type="text" class="bg-purple-white shadow text-slate-950 rounded-xl border-0 p-3 w-full"
+                            placeholder="type search..." />
+					<div class="absolute top-0 right-0 p-4 pr-3 text-purple-lighter">
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500" fill="none"  viewBox="0 0 24 24"
+							stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+								d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+						</svg>
+					</div>
+				</div>
+			</div>
+		
+
+
+        
       </div>
+    </div>
       {/* Your other components */}
       
-       <section className="pb-5 pt-5 lg:pb-20 lg:pt-[120px] dark:bg-dark">
+       <section className=" pt-5 lg:pb-20 lg:pt-[120px] dark:bg-dark">
       <div className="container">
       <div className="flex justify-center">
       <div className="inline-flex items-center overflow-hidden rounded-lg border border-stroke dark:border-dark-3">
@@ -152,11 +184,11 @@ const PatientPage = ({ authUser }) => {
       </div>
       </div>
       </section>
-      <div className="flex overflow-x-scroll pb-10 hide-scroll-bar">
+      <div className="flex overflow-x-scroll pb-4 hide-scroll-bar">
       <div className="flex flex-nowrap lg:ml-40 md:ml-20 ml-10">
   {categoriesSets[currentIndex]?.map((category, index) => (
     <div key={index} className="p-2">
-      <CategoryCard icon={category.icon} title={category.title} description={category.description} />
+      <CategoryCard icon={category.icon} title={category.title} description={category.description} onClick={handleCategoryCardClick}/>
     </div>
   ))}
   </div>
@@ -166,7 +198,8 @@ const PatientPage = ({ authUser }) => {
     
       {/* top doctors */}
       
-      <Doctors doctors={doctors} />
+      <RecommendedDoctors />
+
   
 
 
