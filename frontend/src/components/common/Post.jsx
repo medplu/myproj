@@ -1,3 +1,5 @@
+
+import { useEffect, useRef } from "react";
 import { FaRegComment } from "react-icons/fa";
 import { BiRepost } from "react-icons/bi";
 import { FaRegHeart } from "react-icons/fa";
@@ -7,6 +9,10 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
+import { IoEyeOutline } from "react-icons/io5";
+import { IoShareSocialOutline } from "react-icons/io5";
+import ShareModal from '../modal/Modal';
+
 
 import LoadingSpinner from "./LoadingSpinner";
 import { formatPostDate } from "../../utils/date";
@@ -17,6 +23,8 @@ const Post = ({ post }) => {
 	const queryClient = useQueryClient();
 	const postOwner = post.user;
 	const isLiked = post.likes.includes(authUser._id);
+	const postRef = useRef(null);
+  const [showShareModal, setShowShareModal] = useState(false);
 
 	const isMyPost = authUser._id === post.user._id;
 
@@ -122,10 +130,53 @@ const Post = ({ post }) => {
 		if (isLiking) return;
 		likePost();
 	};
+  const openShareModal = () => {
+    setShowShareModal(true);
+};
+
+const closeShareModal = () => {
+    setShowShareModal(false);
+};
+
+
+	useEffect(() => {
+		const observer = new IntersectionObserver(
+		  async (entries) => {
+			if (entries[0].isIntersecting) {
+			  try {
+				const res = await fetch(`/api/posts/view/${post._id}`, {
+					method: "POST",
+				  });
+				  
+				  if (!res.ok) {
+					throw new Error(`HTTP error! status: ${res.status}`);
+				  }
+				  
+				  const data = await res.json();
+				return data;
+			  } catch (error) {
+				throw new Error(error);
+			  }
+			}
+		  },
+		  { threshold: 0.1 }
+		);
+	
+		if (postRef.current) {
+		  observer.observe(postRef.current);
+		}
+	
+		return () => {
+		  if (postRef.current) {
+			observer.unobserve(postRef.current);
+		  }
+		};
+	  }, [post._id]);
+	  
 
 	return (
 		<>
-			<div className='flex gap-2 items-start p-4 bg-slate-800 border-b border-gray-700'>
+			<div ref={postRef} className='flex gap-2 items-start p-4 left-0  bg-slate-800 border-b border-gray-700'>
 				<div className='avatar'>
 					<Link to={`/profile/${postOwner.username}`} className='w-8 rounded-full overflow-hidden'>
 						<img src={postOwner.profileImg || "/avatar-placeholder.png"} />
@@ -226,9 +277,17 @@ const Post = ({ post }) => {
 								</form>
 							</dialog>
 							<div className='flex gap-1 items-center group cursor-pointer'>
-								<BiRepost className='w-6 h-6  text-slate-500 group-hover:text-green-500' />
-								<span className='text-sm text-slate-500 group-hover:text-green-500'>0</span>
+								<IoEyeOutline className='w-6 h-6  text-slate-500 group-hover:text-green-500' />
+								<span className='text-sm text-slate-500 group-hover:text-green-500'>{post.views}</span>
 							</div>
+
+              {/* add share icon below */}
+              <div className='flex gap-1 items-center group cursor-pointer'>
+                <IoShareSocialOutline className='w-4 h-4  text-slate-500 group-hover:text-green-500' onClick={openShareModal}/>
+                
+              </div>
+               {/* Share Modal */}
+               {showShareModal && <ShareModal onClose={closeShareModal} />}
 							<div className='flex gap-1 items-center group cursor-pointer' onClick={handleLikePost}>
 								{isLiking && <LoadingSpinner size='sm' />}
 								{!isLiked && !isLiking && (
