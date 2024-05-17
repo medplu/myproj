@@ -34,6 +34,31 @@ export const createPost = async (req, res) => {
 		console.log("Error in createPost controller: ", error);
 	}
 };
+// PostController.js
+
+// Assuming you have a Post model
+
+export const viewPost = async (req, res) => {
+  try {
+    const postId = req.params.id;
+
+    // Find the post by id and increment the views
+    const post = await Post.findByIdAndUpdate(
+      postId,
+      { $inc: { views: 1 } },
+      { new: true } // This option returns the updated document
+    );
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    res.json(post);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while viewing the post' });
+  }
+};
 
 export const deletePost = async (req, res) => {
 	try {
