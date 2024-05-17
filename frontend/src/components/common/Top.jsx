@@ -5,10 +5,10 @@ import logo from '../../assets/medplus.svg';
 import doctor from '../../assets/doc.png';
 
 const TopSection = ({ authUser }) => (
-    <div className="bg-slate-800  text-white p-4 flex sticky top-0 z-50 shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] items-center justify-between">
+    <div className="hidden bg-slate-800  text-white p-4 flex sticky top-0 z-50 shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] items-center justify-between">
         <div className="flex items-center">
             <div className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-lg font-bold">
-                {}
+                {authUser.username}
             </div>
         </div>
         <div className="flex items-center justify-center flex-1">
