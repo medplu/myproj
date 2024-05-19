@@ -163,7 +163,7 @@ const PatientPage = ({ authUser, doctors }) => {
       <div className="flex justify-center">
       <div className="inline-flex items-center overflow-hidden rounded-lg border border-stroke dark:border-dark-3">
   <button
-    className={`border-r border-stroke px-4 py-3 text-base font-medium text-white last-of-type:border-r-0 hover:bg-gray-2 hover:text-primary dark:border-dark-3 dark:text-white
+    className={`border-r border-stroke px-4 py-3 text-base font-medium text-white last-of-type:border-r-0 hover:bg-gray-800 hover:text-primary dark:border-dark-3 dark:text-white
     ${
       currentIndex === 0 ? "font-bold bg-orange-500 shadow-xl" : ""
     }`}
@@ -172,7 +172,7 @@ const PatientPage = ({ authUser, doctors }) => {
     Categories
   </button>
   <button
-    className={`border-r border-stroke px-4 py-3 text-base font-medium text-dark last-of-type:border-r-0 hover:bg-gray-2 hover:text-primary dark:border-dark-3 dark:text-white
+    className={`border-r border-stroke px-4 py-3 text-base font-medium text-dark last-of-type:border-r-0 hover:bg-gray-800 hover:text-primary dark:border-dark-3 dark:text-white
     ${
       currentIndex === 1 ? "font-bold bg-btn-primary shadow-xl" : ""
     }`}
