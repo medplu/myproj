@@ -1,5 +1,8 @@
 import bcrypt from "bcryptjs";
 import { v2 as cloudinary } from "cloudinary";
+import jwt from 'jsonwebtoken';
+import {createError} from '../utils/error.js'
+
 
 // models
 import Notification from "../models/notification.model.js";
@@ -18,6 +21,9 @@ export const getUserProfile = async (req, res) => {
 		res.status(500).json({ error: error.message });
 	}
 };
+
+
+
 
 export const followUnfollowUser = async (req, res) => {
 	try {
