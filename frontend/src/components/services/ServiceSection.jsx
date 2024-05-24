@@ -175,7 +175,7 @@ const PatientPage = ({ authUser }) => {
           <div className="absolute top-0 left-0 right-0 bottom-0 bg-black opacity-50"></div>
         </figure>
         <div className="absolute top-0 mt-20 mb-4 left-0 right-0 bottom-0 flex flex-col justify-center items-center">
-          <h2 className="card-title text-white text-center font-bold z-10">Hello {authUser.name}</h2>
+          <h2 className="card-title text-white text-center font-bold z-10">Hello {authUser.fullName}</h2>
           <p className="text-white font-bold z-10">Welcome, Our Doctors are available</p>
           <div className="flex items-center justify-between mt-3 px-3 z-10">
             <div className="relative w-full">
