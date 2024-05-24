@@ -63,7 +63,7 @@ const Blogs = () => {
 
   return (
     <div className="bg-blue-200 ">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-6">
         <h2 className="text-xl text-slate-950 font-bold  text-center mb-8">MedPlus Community</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {dummyBlogs.map((blog, index) => (

@@ -1,7 +1,7 @@
 
 import { useEffect, useRef } from "react";
 import { FaRegComment } from "react-icons/fa";
-import { BiRepost } from "react-icons/bi";
+import copy from 'copy-to-clipboard';
 import { FaRegHeart } from "react-icons/fa";
 import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
@@ -283,11 +283,11 @@ const closeShareModal = () => {
 
               {/* add share icon below */}
               <div className='flex gap-1 items-center group cursor-pointer'>
-                <IoShareSocialOutline className='w-4 h-4  text-slate-500 group-hover:text-green-500' onClick={openShareModal}/>
+                <IoShareSocialOutline className='w-4 h-4  text-slate-500 group-hover:text-green-500'  onClick={openShareModal}/>
                 
               </div>
                {/* Share Modal */}
-               {showShareModal && <ShareModal onClose={closeShareModal} />}
+               {showShareModal && <ShareModal onClose={closeShareModal} postId={post._id}/>}
 							<div className='flex gap-1 items-center group cursor-pointer' onClick={handleLikePost}>
 								{isLiking && <LoadingSpinner size='sm' />}
 								{!isLiked && !isLiking && (

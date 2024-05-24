@@ -14,6 +14,7 @@ import ServicesSection from './components/services/ServiceSection';
 import Sidebar from './components/Sidebar'
 import About from './components/about/About'; // Import the new component
 import DoctorPage from './pages/doctor/DoctorPage';
+import PatientsPage from './pages/patients/PatientsPage';
 
 
 function App() {
@@ -95,6 +96,10 @@ function App() {
                 />
                 {/* add the route to about component */}
                 <Route
+                path='/patients'
+                element={<PatientsPage />}
+                />
+                <Route
                     path="/about"
                     element={authUser ? <About /> : <Navigate to="login" />}
                 />
@@ -102,9 +107,10 @@ function App() {
 
 
                 <Route
-                    path="/doctors/:id" // Define the route parameter for the doctor's ID
-                    element={authUser ? <DoctorPage doctors={doctors} /> : <Navigate to="login" />}
+                    path="/doctors-page" // Define the route parameter for the doctor's ID
+                    element={authUser ? <DoctorPage authUser={authUser} userId={authUser._id}/> : <Navigate to="login" /> }
                 />
+                
             </Routes>
             {authUser && !isLandingPage && <Sidebar />} {/* Exclude sidebar from landing page */}
             <Toaster />
