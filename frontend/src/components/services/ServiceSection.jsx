@@ -112,7 +112,6 @@ const PatientPage = ({ authUser }) => {
     filterDoctorsBySpecialty(title);
   };
 
-  
   const renderMap = () => {
     if (window.google && window.google.maps && userLocation) {
       const map = new window.google.maps.Map(document.getElementById("map"), {
@@ -138,21 +137,19 @@ const PatientPage = ({ authUser }) => {
       });
     }
   };
+
   const loadGoogleMapsScript = () => {
-  if (!window.google || !window.google.maps) {
-    const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&callback=initMap`;
-    script.async = true;
-    script.defer = true;
-    window.initMap = renderMap; // Ensure renderMap is called after the script is loaded
-    document.head.appendChild(script);
-  } else {
-    renderMap();
-  }
-};
-
-
-  
+    if (!window.google || !window.google.maps) {
+      const script = document.createElement("script");
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&callback=initMap`;
+      script.async = true;
+      script.defer = true;
+      window.initMap = renderMap; // Ensure renderMap is called after the script is loaded
+      document.head.appendChild(script);
+    } else {
+      renderMap();
+    }
+  };
 
   useEffect(() => {
     if (userLocation) {
@@ -165,7 +162,7 @@ const PatientPage = ({ authUser }) => {
   }
 
   if (error) {
-    return <div>Error: {error.message}</div>; // Customize the error state as needed
+    return <div>Error: {error}</div>; // Customize the error state as needed
   }
 
   return (
@@ -214,34 +211,39 @@ const PatientPage = ({ authUser }) => {
 
       <div className="flex overflow-x-scroll pb-4 hide-scroll-bar flex-shrink-0">
         <div className="flex flex-nowrap lg:ml-40 md:ml-20 ml-10">
-          {categoriesSets[currentIndex]?.map((category, index) => (
-            <div key={index} className="p-2">
-              <CategoryCard icon={category.icon} title={category.title} description={category.description} onClick={() => handleCategoryCardClick(category.title)} />
+          {categoriesSets[currentIndex].map((category, index) => (
+            <div key={index} className="inline-block px-3" onClick={() => handleCategoryCardClick(category.title)}>
+              <CategoryCard category={category} />
             </div>
           ))}
         </div>
       </div>
 
-      <div className="flex overflow-x-scroll pb-4 hide-scroll-bar">
-        {(filteredDoctors.length ? filteredDoctors : doctors).map((doctor) => (
-          <div key={doctor._id} className="bg-gray-900 flex text-white p-2 rounded-lg shadow-lg m-2 flex-shrink-0" style={{minWidth: '300px'}}>
-            <img src={doctor.image} alt={doctor.name} className="w-24 h-24 mb-3 rounded-full shadow-lg" />
-            <div className="p-2">
-              <h3 className="text-xl font-bold">{doctor.name}</h3>
-              <h3>{doctor.specialties}</h3>
-              <p className="text-orange-500">{doctor.consultationFee}</p>
-              <div className="flex">
-                <p className="text-sm text-gray-600 flex items-center">
-                  <MdLocationOn className="mr-1 text-blue-600" /> {doctor.location}
-                </p>
-                <button className="px-3 py-1 shadow-lg shadow-gray-500/50 bg-orange-500 text-white rounded-lg text-[15px] cursor-pointer active:scale-[.97]">Book</button>
-              </div>
-            </div>
+      <section>
+        <div className="flex-shrink-0">
+          <div className="text-white bg-slate-950 text-center text-2xl font-bold">
+            <h1>{currentIndex === 0 ? "Top Doctors" : "Doctors by Specialties"}</h1>
           </div>
-        ))}
-      </div>
+          <div className="container mx-auto my-8 p-8 flex flex-wrap justify-center">
+            {filteredDoctors.map((doctor) => (
+              <div key={doctor._id} className="max-w-xs w-full rounded-xl overflow-hidden shadow-lg m-4 bg-gray-800">
+                <img className="w-full h-48 object-cover" src={doctor.image} alt={doctor.name} />
+                <div className="px-6 py-4">
+                  <div className="font-bold text-xl mb-2 text-orange-400">{doctor.name}</div>
+                  <p className="text-gray-300 text-base">{doctor.bio}</p>
+                  <p className="text-gray-300 text-sm mt-2">{doctor.specialties}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-      {userLocation && <div id="map" style={{ height: "400px", width: "100%" }}></div>}
+      <div className="flex flex-col items-center mb-6 mx-4">
+        <div className="flex justify-center items-center h-56 w-full bg-white rounded-lg shadow-md">
+          <div id="map" style={{ height: "400px", width: "100%" }}></div>
+        </div>
+      </div>
     </div>
   );
 };
