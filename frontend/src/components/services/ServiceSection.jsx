@@ -141,7 +141,7 @@ const PatientPage = ({ authUser }) => {
   const loadGoogleMapsScript = () => {
     if (!window.google || !window.google.maps) {
       const script = document.createElement("script");
-      script.src = script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}&callback=initMap`;
+      script.src = script.src =`https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}&callback=initMap`;
       script.async = true; // This makes the script load asynchronously
       script.defer = true;
       window.initMap = renderMap; // Ensure renderMap is called after the script is loaded
