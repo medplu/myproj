@@ -48,14 +48,30 @@ const userSchema = new mongoose.Schema(
             type: String,
             default: "",
         },
+       specialties: {
+        type: String,
+        default: null,
+       },
+       location: {
+        type: {
+            type: String, // Don't do `{ location: { type: String } }`
+            enum: ['Point'], // 'location.type' must be 'Point'
+            required: true
+        },
+        coordinates: {
+            type: [Number],
+            required: true
+        }
+    },
+        accountType: {
+            type: String,
+            required: true,
+            enum: ['client', 'student', 'professional', 'institution'],
+        },
+        
         link: {
             type: String,
             default: "",
-        },
-        userType: {
-            type: String,
-            enum: ["doctor", "student", "patient"],
-            required: true,
         },
         isVerified: {
             type: Boolean,
