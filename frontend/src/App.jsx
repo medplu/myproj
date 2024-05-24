@@ -14,7 +14,7 @@ import ServicesSection from './components/services/ServiceSection';
 import Sidebar from './components/Sidebar'
 import About from './components/about/About'; // Import the new component
 import DoctorPage from './pages/doctor/DoctorPage';
-import PatientsPage from './pages/patients/PatientsPage';
+import PatientsPage from './pages/PatientsPage';
 
 
 function App() {
