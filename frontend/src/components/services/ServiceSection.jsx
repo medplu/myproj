@@ -240,7 +240,7 @@ const PatientPage = ({ authUser }) => {
       </section>
 
       
-        <div className="flex justify-center items-center h-50 w-full bg-white rounded-lg shadow-md">
+        <div className="hidden flex justify-center items-center h-50 w-full bg-white rounded-lg shadow-md">
           <div id="map" style={{ height: "400px", width: "100%" }}></div>
         </div>
 
