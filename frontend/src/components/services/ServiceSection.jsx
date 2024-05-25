@@ -218,9 +218,9 @@ const PatientPage = ({ authUser }) => {
           ))}
         </div>
       </div>
-
+           <h5>Our Top Doctors </h5>
       <div className="flex overflow-x-scroll pb-4 hide-scroll-bar">
-        <h5>Our top Doctors</h5>
+        
         {(filteredDoctors.length ? filteredDoctors : doctors).map((doctor) => (
           <div key={doctor._id} className="bg-gray-900 flex text-white p-2 rounded-lg shadow-lg m-2 flex-shrink-0" style={{minWidth: '300px'}}>
             <img src={doctor.image} alt={doctor.name} className="w-24 h-24 mb-3 rounded-full shadow-lg" />
