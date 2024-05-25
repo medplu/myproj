@@ -218,7 +218,7 @@ const PatientPage = ({ authUser }) => {
           ))}
         </div>
       </div>
-           <h5>Our Top Doctors </h5>
+           <h5 className='text-center'>Our Top Doctors </h5>
       <div className="flex overflow-x-scroll pb-4 hide-scroll-bar">
         
         {(filteredDoctors.length ? filteredDoctors : doctors).map((doctor) => (
@@ -240,7 +240,7 @@ const PatientPage = ({ authUser }) => {
       </div>
 
       
-        <div className="hidden flex justify-center items-center h-50 w-full bg-white rounded-lg shadow-md">
+        <div className="flex justify-center items-center h-50 w-full bg-white rounded-lg shadow-md">
           <div id="map" style={{ height: "400px", width: "100%" }}></div>
         </div>
 
