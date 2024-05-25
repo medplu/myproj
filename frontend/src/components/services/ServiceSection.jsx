@@ -239,12 +239,12 @@ const PatientPage = ({ authUser }) => {
         </div>
       </section>
 
-      <div className="flex flex-col items-center mb-6 mx-4">
+      
         <div className="flex justify-center items-center h-50 w-full bg-white rounded-lg shadow-md">
-          <div id="map" style={{ height: "40px", width: "100%" }}></div>
+          <div id="map" style={{ height: "400px", width: "100%" }}></div>
         </div>
-      </div>
-    </div>
+      
+  
   );
 };
 
