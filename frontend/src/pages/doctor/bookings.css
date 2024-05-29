@@ -1,0 +1,7 @@
+.confirmButton {
+    background-color: rgba(0, 128, 0, 0.5); /* green with 50% opacity */
+  }
+  
+  .rescheduleButton {
+    background-color: rgba(255, 0, 0, 0.5); /* red with 50% opacity */
+  }
