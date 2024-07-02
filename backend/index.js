@@ -25,8 +25,21 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const __dirname = path.resolve();
 
-// Apply CORS middleware to allow all origins during development
-app.use(cors());
+// Apply CORS middleware to allow specific origin
+const allowedOrigins = ['https://5902-154-159-252-247.ngrok-free.app'];
+app.use(cors({
+  origin: function(origin, callback) {
+    // Check if the request origin is in the allowed list
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true  // Allows sending cookies across origins
+}));
 
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
