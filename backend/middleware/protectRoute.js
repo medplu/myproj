@@ -17,6 +17,8 @@ export const protectRoute = async (req, res, next) => {
 
     // Verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    console.log("Decoded JWT:", decoded);
+
 
     // Check if the token is valid
     if (!decoded) {
