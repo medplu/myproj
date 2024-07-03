@@ -26,7 +26,7 @@ const PORT = process.env.PORT || 3000;
 const __dirname = path.resolve();
 
 // Apply CORS middleware to allow specific origin
-const allowedOrigins = ['https://7dd3-41-90-67-38.ngrok-free.app', 'http://localhost:8100']; // Add localhost:8100 here
+const allowedOrigins = ['https://7dd3-41-90-67-38.ngrok-free.app',http://localhost, 'http://localhost:8100']; // Add localhost:8100 here
 app.use(cors({
   origin: function(origin, callback) {
     // Check if the request origin is in the allowed list
