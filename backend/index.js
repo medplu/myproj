@@ -11,7 +11,7 @@ import connectMongoDB from '../db/connectMongoDB.js';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import { v2 as cloudinary } from 'cloudinary';
-import cors from 'cors'; // Import CORS middleware
+import cors from 'cors';
 
 dotenv.config();
 
@@ -26,7 +26,7 @@ const PORT = process.env.PORT || 3000;
 const __dirname = path.resolve();
 
 // Apply CORS middleware to allow specific origin
-const allowedOrigins = ['https://5902-154-159-252-247.ngrok-free.app'];
+const allowedOrigins = ['https://5902-154-159-252-247.ngrok-free.app', 'http://localhost:8100']; // Add localhost:8100 here
 app.use(cors({
   origin: function(origin, callback) {
     // Check if the request origin is in the allowed list
