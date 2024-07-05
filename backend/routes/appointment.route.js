@@ -1,30 +1,38 @@
 import express from 'express';
-import {
-  createAppointment,
-  getAppointments,
-  getNewAppointmentsCount,
-  getAllAppointments,
-  resetNewAppointmentsCount,
-  confirmAppointment // Import the confirmAppointment function
-} from '../controllers/appointment.controller.js';
+import appointmentController from '../controllers/appointment.controller.js';
 
-const router = express.Router();
+export default function(io) {
+  const router = express.Router();
 
-// Route to create a new appointment
-router.post('/', createAppointment);
+  const {
+    createAppointment,
+    getAppointments,
+    getNewAppointmentsCount,
+    getAllAppointments,
+    resetNewAppointmentsCount,
+    confirmAppointment,
+    getUserAppointments
+  } = appointmentController(io);
 
-// Route to get all appointments for a specific doctor
-router.get('/:doctorId', getAppointments);
+  // Route to create a new appointment
+  router.post('/', createAppointment);
+// Route to book an appointment and update the doctor's schedule
 
-router.get('/all/:doctorId', getAllAppointments);
+  // Route to get all appointments for a specific doctor
+  router.get('/:doctorId', getAllAppointments);
 
-// Route to get new appointments count
-router.get('/new/count/:doctorId', getNewAppointmentsCount);
+  router.get('/all/:doctorId', getAppointments);
 
-// Route to reset new appointments count
-router.post('/new/reset/:doctorId', resetNewAppointmentsCount);
+  router.get('/user/:userId', getUserAppointments);
 
-// Route to confirm an appointment
-router.post('/confirm/:id', confirmAppointment); // Add this line
+  // Route to get new appointments count
+  router.get('/new/count/:doctorId', getNewAppointmentsCount);
 
-export default router;
+  // Route to reset new appointments count
+  router.post('/new/reset/:doctorId', resetNewAppointmentsCount);
+
+  // Route to confirm an appointment
+  router.post('/confirm/:id', confirmAppointment);
+
+  return router;
+}
