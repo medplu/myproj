@@ -1,4 +1,4 @@
-// controllers/appointment.controller.js
+ // controllers/appointment.controller.js
 
 import Appointment from '../models/appointment.model.js';
 
@@ -6,12 +6,13 @@ import Appointment from '../models/appointment.model.js';
 export const createAppointment = async (req, res) => {
   const { name, phone, email, gender, age, Date, doctorId, userId } = req.body;
 
-  // Check each field individually except for Date
+  // Check each field individually
   if (!name) return res.status(400).json({ message: 'Missing name field' });
   if (!phone) return res.status(400).json({ message: 'Missing phone field' });
   if (!email) return res.status(400).json({ message: 'Missing email field' });
   if (!gender) return res.status(400).json({ message: 'Missing gender field' });
   if (!age) return res.status(400).json({ message: 'Missing age field' });
+  if (!Date) return res.status(400).json({ message: 'Missing Date field' });
   if (!doctorId) return res.status(400).json({ message: 'Missing doctorId field' });
   if (!userId) return res.status(400).json({ message: 'Missing userId field' });
 
@@ -22,10 +23,10 @@ export const createAppointment = async (req, res) => {
       email,
       gender,
       age,
-      Date, // Optional field
+      Date,
       doctor_id: doctorId,
       user_id: userId,
-      status: 'new' // Default status
+      status: 'new'  // Add status field with default value 'new'
     });
 
     await appointment.save();
@@ -36,7 +37,6 @@ export const createAppointment = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
-
 
 // Controller to get all appointments for a specific doctor
 export const getAppointments = async (req, res) => {
