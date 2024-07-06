@@ -1,162 +1,256 @@
-import Appointment from '../models/appointment.model.js';
+import Notification from "../models/notification.model.js";
+import Post from "../models/post.model.js";
+import User from "../models/user.model.js";
+import { v2 as cloudinary } from "cloudinary";
 
-import Doctor from '../models/doctor.model.js'
-export default function (io) {
-  return {
-    // Controller to create a new appointment
-    // Controller to create a new appointment
-// Controller to create a new appointment
-createAppointment: async (req, res) => {
-  const { name, phone, email, gender, age, date, doctorId, userId, time } = req.body;
+export const createPost = async (req, res) => {
+	try {
+		const { text } = req.body;
+		let { img } = req.body;
+		const userId = req.user._id.toString();
 
-  // Check each field individually
-  if (!name) return res.status(400).json({ message: 'Missing name field' });
-  if (!phone) return res.status(400).json({ message: 'Missing phone field' });
-  if (!email) return res.status(400).json({ message: 'Missing email field' });
-  if (!gender) return res.status(400).json({ message: 'Missing gender field' });
-  if (!age) return res.status(400).json({ message: 'Missing age field' });
-  if (!date) return res.status(400).json({ message: 'Missing date field' });
-  if (!doctorId) return res.status(400).json({ message: 'Missing doctorId field' });
-  if (!userId) return res.status(400).json({ message: 'Missing userId field' });
-  if (!time) return res.status(400).json({ message: 'Missing time field' });
+		const user = await User.findById(userId);
+		if (!user) return res.status(404).json({ message: "User not found" });
 
+		if (!text && !img) {
+			return res.status(400).json({ error: "Post must have text or image" });
+		}
+
+		if (img) {
+			const uploadedResponse = await cloudinary.uploader.upload(img);
+			img = uploadedResponse.secure_url;
+		}
+
+		const newPost = new Post({
+			user: userId,
+			text,
+			img,
+		});
+
+		await newPost.save();
+		res.status(201).json(newPost);
+	} catch (error) {
+		res.status(500).json({ error: "Internal server error" });
+		console.log("Error in createPost controller: ", error);
+	}
+};
+// PostController.js
+
+// Assuming you have a Post model
+
+export const viewPost = async (req, res) => {
   try {
-    const existingAppointment = await Appointment.findOne({ doctor_id: doctorId, user_id: userId, Date: date });
-    if (existingAppointment) {
-      // Redirect user to appointments page if an appointment already exists for the same doctor, user, and date
-      return res.status(400).json({ message: 'An appointment already exists for this doctor, user, and date' });
+    const postId = req.params.id;
+
+    // Find the post by id and increment the views
+    const post = await Post.findByIdAndUpdate(
+      postId,
+      { $inc: { views: 1 } },
+      { new: true } // This option returns the updated document
+    );
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
     }
 
-    const appointment = new Appointment({
-      name,
-      phone,
-      email,
-      gender,
-      age,
-      Date: date,
-      doctor_id: doctorId,
-      user_id: userId,
-      time,
-      status: 'new' // Add status field with default value 'new'
-    });
-
-    await appointment.save();
-
-    
-
-    // Emit an event to all connected clients
-    io.emit('newAppointment', appointment);
-
-    res.status(201).json(appointment);
+    res.json(post);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ error: 'An error occurred while viewing the post' });
   }
-},
+};
 
-    // Controller to get all appointments for a specific doctor
-    getAppointments: async (req, res) => {
-      try {
-        const { doctorId } = req.params; // Get doctorId from request parameters
+export const deletePost = async (req, res) => {
+	try {
+		const post = await Post.findById(req.params.id);
+		if (!post) {
+			return res.status(404).json({ error: "Post not found" });
+		}
 
-        const appointments = await Appointment.find({ doctor_id: doctorId, status: { $ne: 'confirmed' } });
+		if (post.user.toString() !== req.user._id.toString()) {
+			return res.status(401).json({ error: "You are not authorized to delete this post" });
+		}
 
-        res.status(200).json({
-          success: true,
-          count: appointments.length,
-          data: appointments,
-        });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, error: 'Server error' });
-      }
-    },
+		if (post.img) {
+			const imgId = post.img.split("/").pop().split(".")[0];
+			await cloudinary.uploader.destroy(imgId);
+		}
 
-    // Controller to get all appointments for a specific doctor
-    getAllAppointments: async (req, res) => {
-      try {
-        const { doctorId } = req.params;
-        console.log('Doctor ID:', doctorId); // Add this line for debugging
-        
-        const appointments = await Appointment.find({ doctor_id: doctorId });
+		await Post.findByIdAndDelete(req.params.id);
 
-        res.status(200).json({
-          success: true,
-          count: appointments.length,
-          data: appointments,
-        });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, error: 'Server error' });
-      }
-    },
+		res.status(200).json({ message: "Post deleted successfully" });
+	} catch (error) {
+		console.log("Error in deletePost controller: ", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+};
 
-    // Controller to get all appointments for a specific user
-    getUserAppointments: async (req, res) => {
-      try {
-        const { userId } = req.params; // Get userId from request parameters
+export const commentOnPost = async (req, res) => {
+	try {
+		const { text } = req.body;
+		const postId = req.params.id;
+		const userId = req.user._id;
 
-        const appointments = await Appointment.find({ user_id: userId })
-          .populate('doctor_id', 'name specialties experience image') // Include doctor's details
-          .exec();
+		if (!text) {
+			return res.status(400).json({ error: "Text field is required" });
+		}
+		const post = await Post.findById(postId);
 
-        res.status(200).json({
-          success: true,
-          count: appointments.length,
-          data: appointments,
-        });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, error: 'Server error' });
-      }
-    },
+		if (!post) {
+			return res.status(404).json({ error: "Post not found" });
+		}
 
-    // Controller to get new appointments count for a specific doctor
-    getNewAppointmentsCount: async (req, res) => {
-      const { doctorId } = req.params;
-      try {
-        const count = await Appointment.countDocuments({ doctor_id: doctorId, status: 'new' });
-        res.status(200).json({ count });
-      } catch (error) {
-        res.status(500).json({ message: 'Error fetching new appointments count', error });
-      }
-    },
+		const comment = { user: userId, text };
 
-    // Controller to reset new appointments count for a specific doctor
-    resetNewAppointmentsCount: async (req, res) => {
-      const { doctorId } = req.params;
-      try {
-        await Appointment.updateMany({ doctor_id: doctorId, status: 'new' }, { status: 'viewed' });
-        res.status(200).json({ message: 'New appointments count reset successfully' });
-      } catch (error) {
-        res.status(500).json({ message: 'Error resetting new appointments count', error });
-      }
-    },
+		post.comments.push(comment);
+		await post.save();
 
- // Controller to confirm an appointment
-confirmAppointment: async (req, res) => {
-  const { id } = req.params;
-  const { time } = req.body;
+		res.status(200).json(post);
+	} catch (error) {
+		console.log("Error in commentOnPost controller: ", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+};
 
-  try {
-    const appointment = await Appointment.findById(id);
-    if (!appointment) {
-      return res.status(404).json({ message: 'Appointment not found' });
+export const likeUnlikePost = async (req, res) => {
+	try {
+		const userId = req.user._id;
+		const { id: postId } = req.params;
+
+		const post = await Post.findById(postId);
+
+		if (!post) {
+			return res.status(404).json({ error: "Post not found" });
+		}
+
+		const userLikedPost = post.likes.includes(userId);
+
+		if (userLikedPost) {
+			// Unlike post
+			await Post.updateOne({ _id: postId }, { $pull: { likes: userId } });
+			await User.updateOne({ _id: userId }, { $pull: { likedPosts: postId } });
+
+			const updatedLikes = post.likes.filter((id) => id.toString() !== userId.toString());
+			res.status(200).json(updatedLikes);
+		} else {
+			// Like post
+			post.likes.push(userId);
+			await User.updateOne({ _id: userId }, { $push: { likedPosts: postId } });
+			await post.save();
+
+			const notification = new Notification({
+				from: userId,
+				to: post.user,
+				type: "like",
+			});
+			await notification.save();
+
+			const updatedLikes = post.likes;
+			res.status(200).json(updatedLikes);
+		}
+	} catch (error) {
+		console.log("Error in likeUnlikePost controller: ", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+};
+
+
+export const getAllPosts = async (req, res) => {
+	try {
+		const posts = await Post.find()
+			.sort({ createdAt: -1 })
+			.populate({
+				path: "user",
+				select: "-password",
+			})
+			.populate({
+				path: "comments.user",
+				select: "-password",
+			});
+
+		if (posts.length === 0) {
+			return res.status(200).json([]);
+		}
+
+		res.status(200).json(posts);
+	} catch (error) {
+		console.log("Error in getAllPosts controller: ", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+};
+
+export const getLikedPosts = async (req, res) => {
+    // Get the user id from the request object
+    const userId = req.user.id;
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ error: "User not found" });
+
+        const likedPosts = await Post.find({ _id: { $in: user.likedPosts } })
+            .populate({
+                path: "user",
+                select: "-password",
+            })
+            .populate({
+                path: "comments.user",
+                select: "-password",
+            });
+
+        res.status(200).json(likedPosts);
+    } catch (error) {
+        console.log("Error in getLikedPosts controller: ", error);
+        res.status(500).json({ error: "Internal server error" });
     }
+};
 
-    appointment.status = 'confirmed';
-    appointment.time = time; // Assuming you have a 'time' field in your schema
-    await appointment.save();
+export const getFollowingPosts = async (req, res) => {
+	try {
+		const userId = req.user._id;
+		const user = await User.findById(userId);
+		if (!user) return res.status(404).json({ error: "User not found" });
 
-    // Emit an event to all connected clients
-    io.emit('appointmentConfirmed', appointment);
+		const following = user.following;
 
-    res.status(200).json({ message: 'Appointment confirmed', appointment });
-  } catch (error) {
-    console.error('Error confirming appointment:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-}
+		const feedPosts = await Post.find({ user: { $in: following } })
+			.sort({ createdAt: -1 })
+			.populate({
+				path: "user",
+				select: "-password",
+			})
+			.populate({
+				path: "comments.user",
+				select: "-password",
+			});
 
-}
-  }
+		res.status(200).json(feedPosts);
+	} catch (error) {
+		console.log("Error in getFollowingPosts controller: ", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+};
+
+export const getUserPosts = async (req, res) => {
+	try {
+		const { username } = req.params;
+
+		const user = await User.findOne({ username });
+		if (!user) return res.status(404).json({ error: "User not found" });
+
+		const posts = await Post.find({ user: user._id })
+			.sort({ createdAt: -1 })
+			.populate({
+				path: "user",
+				select: "-password",
+			})
+			.populate({
+				path: "comments.user",
+				select: "-password",
+			});
+
+		res.status(200).json(posts);
+	} catch (error) {
+		console.log("Error in getUserPosts controller: ", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+};  is that what the ost controller is doing 
