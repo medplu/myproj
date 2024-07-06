@@ -1,6 +1,6 @@
 import express from 'express';
 import appointmentController from '../controllers/appointment.controller.js';
-import { protectRoute } from '../middleware/authMiddleware.js'; // Assuming the middleware is named authMiddleware.js
+import { protectRoute } from '../middleware/protectRoutes.js'; // Assuming the middleware is named authMiddleware.js
 
 export default function(io) {
   const router = express.Router();
