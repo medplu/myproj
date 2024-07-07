@@ -1,6 +1,7 @@
+// controllers/appointment.controller.js
+
 import Appointment from '../models/appointment.model.js';
 
-// Controller to create a new appointment
 export const createAppointment = async (req, res) => {
   const { name, phone, email, gender, age, Date, doctorId, userId } = req.body;
 
@@ -35,7 +36,6 @@ export const createAppointment = async (req, res) => {
   }
 };
 
-// Controller to get all appointments for a specific doctor
 export const getAppointments = async (req, res) => {
   try {
     const { doctorId } = req.params;
@@ -53,7 +53,6 @@ export const getAppointments = async (req, res) => {
   }
 };
 
-// Controller to get all appointments for a specific doctor
 export const getAllAppointments = async (req, res) => {
   try {
     const { doctorId } = req.params;
@@ -71,7 +70,6 @@ export const getAllAppointments = async (req, res) => {
   }
 };
 
-// Controller to get new appointments count for a specific doctor
 export const getNewAppointmentsCount = async (req, res) => {
   const { doctorId } = req.params;
   try {
@@ -82,7 +80,6 @@ export const getNewAppointmentsCount = async (req, res) => {
   }
 };
 
-// Controller to reset new appointments count for a specific doctor
 export const resetNewAppointmentsCount = async (req, res) => {
   const { doctorId } = req.params;
   try {
@@ -93,7 +90,6 @@ export const resetNewAppointmentsCount = async (req, res) => {
   }
 };
 
-// Controller to confirm an appointment
 export const confirmAppointment = async (req, res) => {
   const { id } = req.params;
   const { time } = req.body;
@@ -115,14 +111,12 @@ export const confirmAppointment = async (req, res) => {
   }
 };
 
-// Controller to get all appointments for a specific user (patient)
 export const getUserAppointments = async (req, res) => {
   try {
     const { userId } = req.params;
 
     const appointments = await Appointment.find({ user_id: userId })
-      .populate('doctor_id', 'name specialties experience image') // Include doctor's details
-      .exec();
+      .populate('doctor_id', 'name specialties experience image');
 
     res.status(200).json({
       success: true,
