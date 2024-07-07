@@ -1,139 +1,136 @@
-import Appointment from "../models/appointment.model.js";
-import User from "../models/user.model.js";
+import Appointment from '../models/appointment.model.js';
 
-export default function(io) {
-  return {
-    // Function to create a new appointment
-    createAppointment: async (req, res) => {
-      try {
-        const userId = req.user._id; // Get user from middleware
-        const { doctorId, date, time } = req.body;
+// Controller to create a new appointment
+export const createAppointment = async (req, res) => {
+  const { name, phone, email, gender, age, Date, doctorId, userId } = req.body;
 
-        // Additional checks and logic here
+  if (!name) return res.status(400).json({ message: 'Missing name field' });
+  if (!phone) return res.status(400).json({ message: 'Missing phone field' });
+  if (!email) return res.status(400).json({ message: 'Missing email field' });
+  if (!gender) return res.status(400).json({ message: 'Missing gender field' });
+  if (!age) return res.status(400).json({ message: 'Missing age field' });
+  if (!Date) return res.status(400).json({ message: 'Missing Date field' });
+  if (!doctorId) return res.status(400).json({ message: 'Missing doctorId field' });
+  if (!userId) return res.status(400).json({ message: 'Missing userId field' });
 
-        const newAppointment = new Appointment({
-          user: userId,
-          doctor: doctorId,
-          date,
-          time,
-        });
+  try {
+    const appointment = new Appointment({
+      name,
+      phone,
+      email,
+      gender,
+      age,
+      Date,
+      doctor_id: doctorId,
+      user_id: userId,
+      status: 'new'
+    });
 
-        await newAppointment.save();
-        res.status(201).json(newAppointment);
-      } catch (error) {
-        console.log("Error in createAppointment controller: ", error);
-        res.status(500).json({ error: "Internal server error" });
-      }
-    },
+    await appointment.save();
 
-    // Function to get all appointments for a specific doctor
-    getAllAppointments: async (req, res) => {
-      try {
-        const doctorId = req.params.doctorId;
-        const doctor = await User.findById(doctorId);
+    res.status(201).json(appointment);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 
-        if (!doctor || doctor.accountType !== 'doctor') {
-          return res.status(404).json({ message: "Doctor not found" });
-        }
+// Controller to get all appointments for a specific doctor
+export const getAppointments = async (req, res) => {
+  try {
+    const { doctorId } = req.params;
 
-        const appointments = await Appointment.find({ doctor: doctorId });
-        res.status(200).json(appointments);
-      } catch (error) {
-        console.log("Error in getAllAppointments controller: ", error);
-        res.status(500).json({ error: "Internal server error" });
-      }
-    },
+    const appointments = await Appointment.find({ doctor_id: doctorId, status: { $ne: 'confirmed' } });
 
-    // Function to get all appointments for the logged-in user
-    getAppointments: async (req, res) => {
-      try {
-        const userId = req.user._id; // Get user from middleware
+    res.status(200).json({
+      success: true,
+      count: appointments.length,
+      data: appointments,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+};
 
-        const appointments = await Appointment.find({ user: userId });
-        res.status(200).json(appointments);
-      } catch (error) {
-        console.log("Error in getAppointments controller: ", error);
-        res.status(500).json({ error: "Internal server error" });
-      }
-    },
+// Controller to get all appointments for a specific doctor
+export const getAllAppointments = async (req, res) => {
+  try {
+    const { doctorId } = req.params;
 
-    // Function to get new appointments count for a specific doctor
-    getNewAppointmentsCount: async (req, res) => {
-      try {
-        const doctorId = req.params.doctorId;
-        const doctor = await User.findById(doctorId);
+    const appointments = await Appointment.find({ doctor_id: doctorId });
 
-        if (!doctor || doctor.accountType !== 'doctor') {
-          return res.status(404).json({ message: "Doctor not found" });
-        }
+    res.status(200).json({
+      success: true,
+      count: appointments.length,
+      data: appointments,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+};
 
-        const newAppointmentsCount = await Appointment.countDocuments({ doctor: doctorId, status: 'new' });
-        res.status(200).json({ newAppointmentsCount });
-      } catch (error) {
-        console.log("Error in getNewAppointmentsCount controller: ", error);
-        res.status(500).json({ error: "Internal server error" });
-      }
-    },
+// Controller to get new appointments count for a specific doctor
+export const getNewAppointmentsCount = async (req, res) => {
+  const { doctorId } = req.params;
+  try {
+    const count = await Appointment.countDocuments({ doctor_id: doctorId, status: 'new' });
+    res.status(200).json({ count });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching new appointments count', error });
+  }
+};
 
-    // Function to reset new appointments count for a specific doctor
-    resetNewAppointmentsCount: async (req, res) => {
-      try {
-        const doctorId = req.params.doctorId;
-        const doctor = await User.findById(doctorId);
+// Controller to reset new appointments count for a specific doctor
+export const resetNewAppointmentsCount = async (req, res) => {
+  const { doctorId } = req.params;
+  try {
+    await Appointment.updateMany({ doctor_id: doctorId, status: 'new' }, { status: 'viewed' });
+    res.status(200).json({ message: 'New appointments count reset successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error resetting new appointments count', error });
+  }
+};
 
-        if (!doctor || doctor.accountType !== 'doctor') {
-          return res.status(404).json({ message: "Doctor not found" });
-        }
+// Controller to confirm an appointment
+export const confirmAppointment = async (req, res) => {
+  const { id } = req.params;
+  const { time } = req.body;
 
-        await Appointment.updateMany({ doctor: doctorId, status: 'new' }, { status: 'viewed' });
-        res.status(200).json({ message: "New appointments count reset successfully" });
-      } catch (error) {
-        console.log("Error in resetNewAppointmentsCount controller: ", error);
-        res.status(500).json({ error: "Internal server error" });
-      }
-    },
-
-    // Function to confirm an appointment
-    confirmAppointment: async (req, res) => {
-      try {
-        const appointmentId = req.params.id;
-        const userId = req.user._id; // Get user from middleware
-
-        const appointment = await Appointment.findById(appointmentId);
-
-        if (!appointment) {
-          return res.status(404).json({ message: "Appointment not found" });
-        }
-
-        if (appointment.doctor.toString() !== userId.toString()) {
-          return res.status(403).json({ message: "You are not authorized to confirm this appointment" });
-        }
-
-        appointment.status = 'confirmed';
-        await appointment.save();
-        res.status(200).json({ message: "Appointment confirmed successfully" });
-      } catch (error) {
-        console.log("Error in confirmAppointment controller: ", error);
-        res.status(500).json({ error: "Internal server error" });
-      }
-    },
-
-    // Function to get all appointments for a specific user
-    getUserAppointments: async (req, res) => {
-      try {
-        const userId = req.params.userId;
-        const user = await User.findById(userId);
-
-        if (!user) {
-          return res.status(404).json({ message: "User not found" });
-        }
-
-        const appointments = await Appointment.find({ user: userId });
-        res.status(200).json(appointments);
-      } catch (error) {
-        console.log("Error in getUserAppointments controller: ", error);
-        res.status(500).json({ error: "Internal server error" });
-      }
+  try {
+    const appointment = await Appointment.findById(id);
+    if (!appointment) {
+      return res.status(404).json({ message: 'Appointment not found' });
     }
-  };
-}
+
+    appointment.status = 'confirmed';
+    appointment.time = time; // Assuming you have a 'time' field in your schema
+    await appointment.save();
+
+    res.status(200).json({ message: 'Appointment confirmed', appointment });
+  } catch (error) {
+    console.error('Error confirming appointment:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Controller to get all appointments for a specific user (patient)
+export const getUserAppointments = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const appointments = await Appointment.find({ user_id: userId })
+      .populate('doctor_id', 'name specialties experience image') // Include doctor's details
+      .exec();
+
+    res.status(200).json({
+      success: true,
+      count: appointments.length,
+      data: appointments,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+};

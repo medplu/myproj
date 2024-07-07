@@ -114,6 +114,20 @@ export const getDoctor = async (req, res, next) => {
     }
 };
 
+export const updateDoctor = async (req, res) => {
+    try {
+        const updatedDoctor = await Doctor.findByIdAndUpdate(req.params.doctorId, req.body, { new: true });
+      
+        if (!updatedDoctor) {
+          return res.status(404).json({ message: 'Doctor not found' });
+        }
+      
+        res.status(200).json(updatedDoctor);
+      } catch (error) {
+        res.status(500).json({ message: error.message });
+      }
+  };
+
 
 export const UpdateUserInfo = async (req, res, next) => {
     try {

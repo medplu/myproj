@@ -39,7 +39,7 @@ export const getSchedule = async (req, res) => {
   const { doctorId } = req.params;
 
   try {
-    const doctor = await Doctor.findOne({userId: doctorId});
+    const doctor = await Doctor.findById(doctorId);
 
     if (!doctor) {
       return res.status(404).json({ message: 'Doctor not found' });
@@ -48,7 +48,7 @@ export const getSchedule = async (req, res) => {
     const schedules = await Schedule.find({ doctor: doctor._id });
 
     if (!schedules.length) {
-      return res.status(404).json({ message: 'Schedules not found' });
+      return res.status(200).json({ message: 'No schedules found for this doctor' });
     }
 
     res.json(schedules);

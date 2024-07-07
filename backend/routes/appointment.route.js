@@ -1,6 +1,5 @@
 import express from 'express';
 import appointmentController from '../controllers/appointment.controller.js';
-import { protectRoute } from '../middleware/protectRoute.js'; // Assuming the middleware is named authMiddleware.js
 
 export default function(io) {
   const router = express.Router();
@@ -15,16 +14,25 @@ export default function(io) {
     getUserAppointments
   } = appointmentController(io);
 
-  // Apply protectRoute middleware to secure routes
-  router.post('/', protectRoute, createAppointment);
+  // Route to create a new appointment
+  router.post('/', createAppointment);
+// Route to book an appointment and update the doctor's schedule
 
-  // Protecting routes that require authenticated users
-  router.get('/:doctorId', protectRoute, getAllAppointments);
-  router.get('/all/:doctorId', protectRoute, getAppointments);
-  router.get('/user/:userId', protectRoute, getUserAppointments);
-  router.get('/new/count/:doctorId', protectRoute, getNewAppointmentsCount);
-  router.post('/new/reset/:doctorId', protectRoute, resetNewAppointmentsCount);
-  router.post('/confirm/:id', protectRoute, confirmAppointment);
+  // Route to get all appointments for a specific doctor
+  router.get('/:doctorId', getAppointments);
+
+  router.get('/all/:doctorId', getAppointments);
+
+  router.get('/user/:userId', getUserAppointments);
+
+  // Route to get new appointments count
+  router.get('/new/count/:doctorId', getNewAppointmentsCount);
+
+  // Route to reset new appointments count
+  router.post('/new/reset/:doctorId', resetNewAppointmentsCount);
+
+  // Route to confirm an appointment
+  router.post('/confirm/:id', confirmAppointment);
 
   return router;
 }
