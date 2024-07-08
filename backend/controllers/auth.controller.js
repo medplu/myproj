@@ -149,7 +149,7 @@ export const getMe = async (req, res) => {
         let doctorInfo = null;
 
         // Check if user is a professional and a doctor
-        if (user.accountType === 'professional' && user.specialties.includes('doctor')) {
+        if (user.accountType === 'professional' && user.specialties.includes('Doctor')) {
             // Fetch doctor information
             doctorInfo = await Doctor.findOne({ userId: user._id }).select('-__v');
         }
