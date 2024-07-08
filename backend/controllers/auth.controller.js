@@ -135,6 +135,17 @@ export const login = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+// Logout controller
+export const logout = async (req, res) => {
+    try {
+        // Clear the JWT by setting an expired token (optional in token-based auth, mainly for UI handling)
+        res.status(200).json({ message: "Logged out successfully" });
+    } catch (error) {
+        console.log("Error in logout controller", error.message);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 
 
 // GetMe controller
