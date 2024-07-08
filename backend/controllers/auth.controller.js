@@ -110,15 +110,10 @@ export const login = async (req, res) => {
         if (!user) {
             return res.status(400).json({ message: "User does not exist" });
         }
+
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ message: "Invalid credentials" });
-        }
-        
-        // Fetch doctor information if the account type is professional
-        let doctorInfo = null;
-        if (user.accountType === 'professional') {
-            doctorInfo = await Doctor.findOne({ userId: user._id }).select('-__v');
         }
 
         const token = generateToken(user._id);
@@ -134,23 +129,13 @@ export const login = async (req, res) => {
             profileimg: user.profileimg,
             coverimg: user.coverimg,
             specialties: user.specialties,
-            doctorInfo,
         });
     } catch (error) {
-        console.log("Error in login controller", error.message);
+        console.error("Error in login controller", error.message);
         res.status(500).json({ message: error.message });
     }
 };
-// Logout controller
-export const logout = async (req, res) => {
-    try {
-        // Clear the JWT by setting an expired token (optional in token-based auth, mainly for UI handling)
-        res.status(200).json({ message: "Logged out successfully" });
-    } catch (error) {
-        console.log("Error in logout controller", error.message);
-        res.status(500).json({ message: error.message });
-    }
-};
+
 
 // GetMe controller
 export const getMe = async (req, res) => {
