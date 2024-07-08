@@ -110,15 +110,10 @@ export const login = async (req, res) => {
         if (!user) {
             return res.status(400).json({ message: "User does not exist" });
         }
+
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ message: "Invalid credentials" });
-        }
-        
-        // Fetch doctor information if the account type is professional
-        let doctorInfo = null;
-        if (user.accountType === 'professional') {
-            doctorInfo = await Doctor.findOne({ userId: user._id }).select('-__v');
         }
 
         const token = generateToken(user._id);
@@ -134,10 +129,9 @@ export const login = async (req, res) => {
             profileimg: user.profileimg,
             coverimg: user.coverimg,
             specialties: user.specialties,
-            doctorInfo,
         });
     } catch (error) {
-        console.log("Error in login controller", error.message);
+        console.error("Error in login controller", error.message);
         res.status(500).json({ message: error.message });
     }
 };
@@ -160,12 +154,36 @@ export const getMe = async (req, res) => {
         if (!user) {
             return res.status(400).json({ message: "User not found" });
         }
-        res.status(200).json(user);
+
+        // Initialize doctorInfo as null
+        let doctorInfo = null;
+
+        // Check if user is a professional and a doctor
+        if (user.accountType === 'professional' && user.specialties.includes('doctor')) {
+            // Fetch doctor information
+            doctorInfo = await Doctor.findOne({ userId: user._id }).select('-__v');
+        }
+
+        // Return user data along with doctor info if applicable
+        res.status(200).json({
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            fullName: user.fullName,
+            accountType: user.accountType,
+            followers: user.followers,
+            following: user.following,
+            profileimg: user.profileimg,
+            coverimg: user.coverimg,
+            specialties: user.specialties,
+            doctorInfo,
+        });
     } catch (error) {
         console.log("Error in getMe controller", error.message);
         res.status(500).json({ message: error.message });
     }
-}
+};
+
 
 // ForgotPassword controller
 export const forgotPassword = async (req, res) => {
