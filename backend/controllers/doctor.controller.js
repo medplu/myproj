@@ -114,19 +114,36 @@ export const getDoctor = async (req, res, next) => {
     }
 };
 
-export const updateDoctor = async (req, res) => {
-    try {
-        const updatedDoctor = await Doctor.findByIdAndUpdate(req.params.doctorId, req.body, { new: true });
-      
-        if (!updatedDoctor) {
-          return res.status(404).json({ message: 'Doctor not found' });
-        }
-      
-        res.status(200).json(updatedDoctor);
-      } catch (error) {
-        res.status(500).json({ message: error.message });
-      }
-  };
+// Update a doctor's information (e.g., availability, consultation fee)
+export const updateDoctorInformation = async (req, res) => {
+  try {
+    const { doctorId } = req.params;
+    const { availability, consultationFee, clinicLocation } = req.body; // Example fields, adjust based on your needs
+
+    const doctor = await Doctor.findById(doctorId);
+
+    if (!doctor) {
+      return res.status(404).json({ message: 'Doctor not found' });
+    }
+
+    // Update fields as needed
+    if (availability !== undefined) {
+      doctor.availability = availability;
+    }
+    if (consultationFee !== undefined) {
+      doctor.consultationFee = consultationFee;
+    }
+    if (clinicLocation !== undefined) {
+      doctor.clinicLocation = clinicLocation;
+    }
+
+    await doctor.save();
+
+    res.status(200).json({ message: 'Doctor information updated successfully', doctor });
+  } catch (error) {
+    console.error('Error updating doctor information:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 
 
 export const UpdateUserInfo = async (req, res, next) => {
