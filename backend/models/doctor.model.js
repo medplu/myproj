@@ -47,6 +47,10 @@ const doctorSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
+  availability: {
+    type: Boolean,
+    default: false, // Default to false (unavailable)
+  },
   schedule: {
     Monday: [timeSlotSchema],
     Tuesday: [timeSlotSchema],
