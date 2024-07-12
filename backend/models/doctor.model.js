@@ -43,6 +43,10 @@ const doctorSchema = new mongoose.Schema({
     type: Number,
     default: null,
   },
+  availability: {
+    type: Boolean,
+    default: false, // Default to true assuming doctor is available unless specified otherwise
+  },
   schedule: {
     Monday: [timeSlotSchema],
     Tuesday: [timeSlotSchema],
