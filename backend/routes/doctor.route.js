@@ -1,5 +1,11 @@
 import express from 'express';
-import { getDoctor, updateDoctorSchedule, fetchSchedule, DoctorList, updateDoctor } from '../controllers/doctor.controller.js';
+import {
+  getDoctor,
+  updateDoctorSchedule,
+  fetchSchedule,
+  DoctorList,
+  updateDoctorInformation // Renamed for clarity
+} from '../controllers/doctor.controller.js';
 
 const router = express.Router();
 
@@ -13,7 +19,7 @@ router.get('/:userId/schedule', fetchSchedule);
 router.get('/:doctorId', getDoctor);
 
 // Route to update a doctor's information by doctorId
-router.put('/:doctorId', updateDoctor);
+router.put('/:doctorId/information', updateDoctorInformation); // Renamed route
 
 // Route to fetch list of doctors
 router.get('/', DoctorList);
