@@ -1,17 +1,5 @@
-// routes/doctor.route.js
-
 import express from 'express';
-import {
-  getDoctor,
-  updateDoctorSchedule,
-  fetchSchedule,
-  DoctorList,
-  updateDoctor,
-  updateDoctorInfo,
-  updateDoctorAvailability,
-  updateConsultationFee,
-  updateClinicLocation
-} from '../controllers/doctor.controller.js';
+import { getDoctor, updateDoctorSchedule, fetchSchedule, DoctorList, updateDoctor } from '../controllers/doctor.controller.js';
 
 const router = express.Router();
 
@@ -21,25 +9,13 @@ router.put('/:userId/schedule', updateDoctorSchedule);
 // Route to fetch doctor's schedule
 router.get('/:userId/schedule', fetchSchedule);
 
-// Route to get a single doctor by ID
+// Route to get a single doctor by doctorId
 router.get('/:doctorId', getDoctor);
 
-// Route to update a doctor's information
+// Route to update a doctor's information by doctorId
 router.put('/:doctorId', updateDoctor);
 
-// Route to update doctor's bio and image
-router.put('/:doctorId/updateInfo', updateDoctorInfo);
-
-// Route to update doctor's availability
-router.put('/:doctorId/availability', updateDoctorAvailability);
-
-// Route to update doctor's consultation fee
-router.put('/:doctorId/consultationFee', updateConsultationFee);
-
-// Route to update doctor's clinic location
-router.put('/:doctorId/clinicLocation', updateClinicLocation);
-
-// Route to get list of all doctors
+// Route to fetch list of doctors
 router.get('/', DoctorList);
 
 export default router;
