@@ -1,38 +1,12 @@
 import mongoose from 'mongoose';
-const Schema = mongoose.Schema;
 
-const ScheduleSchema = new Schema({
-  doctor: {
-    type: Schema.Types.ObjectId,
-    ref: 'Doctor',
-    required: true,
-  },
-  day: {
-    type: String,
-    required: true,
-    enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-  },
-  date: {
-    type: Date,
-    required: true,
-  },
-  slots: [
-    {
-      startTime: {
-        type: String,
-        required: true,
-      },
-      endTime: {
-        type: String,
-        required: true,
-      },
-      place: {
-        type: String,
-        required: true,
-      },
-    },
-  ],
+const scheduleSchema = new mongoose.Schema({
+  doctor: { type: mongoose.Schema.Types.ObjectId, ref: 'Doctor', required: true },
+  day: { type: String, required: true }, // Example: 'Monday'
+  date: { type: Date, required: true },
+  totalSlots: { type: Number, required: true }, // Total slots available for the day
+  bookedSlots: { type: Number, default: 0 } // Number of slots that have been booked
 });
 
-const Schedule = mongoose.model('Schedule', ScheduleSchema);
+const Schedule = mongoose.model('Schedule', scheduleSchema);
 export default Schedule;
