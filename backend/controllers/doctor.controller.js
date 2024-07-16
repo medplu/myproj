@@ -38,18 +38,27 @@ export const updateDoctorSchedule = async (req, res) => {
 
 // Get Schedule
 export const fetchSchedule = async (req, res) => {
-    try {
-      const { userId } = req.params;
-      const doctor = await Doctor.findOne({ userId });
-      if (!doctor) {
-        return res.status(404).json({ message: "Doctor not found" });
-      }
-      res.status(200).json(doctor.schedule);
-    } catch (error) {
-      console.error("Error fetching schedule:", error);
-      res.status(500).json({ message: "Internal server error" });
+  try {
+    const { userId } = req.params;
+    const doctor = await Doctor.findOne({ userId });
+
+    if (!doctor) {
+      return res.status(404).json({ message: "Doctor not found" });
     }
-  };
+
+    const schedules = await Schedule.find({ doctor: doctor._id }).sort({ date: 1 });
+
+    if (!schedules.length) {
+      return res.status(200).json({ message: 'No schedules found for this doctor' });
+    }
+
+    res.json(schedules);
+  } catch (error) {
+    console.error("Error fetching schedule:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 
 
 export const appointMentByDate = async (req, res, next) => {
