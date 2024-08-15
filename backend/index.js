@@ -7,16 +7,16 @@ import notificationRoutes from './routes/notification.route.js';
 import doctorRoutes from './routes/doctor.route.js';
 import appointmentRoutes from './routes/appointment.route.js';
 import scheduleRoutes from './routes/schedule.route.js';
+import paymentRoutes from './routes/payment.route.js';
+import prescriptionRoutes from './routes/prescription.route.js'; // Import the prescription route
 import connectMongoDB from '../db/connectMongoDB.js';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import { v2 as cloudinary } from 'cloudinary';
 import cors from 'cors';
 
-// Load environment variables from .env file
 dotenv.config();
 
-// Configure Cloudinary with environment variables
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -24,37 +24,22 @@ cloudinary.config({
 });
 
 const app = express();
+
 const PORT = process.env.PORT || 3000;
+
 const __dirname = path.resolve();
 
-// Allowed origins for CORS
-const allowedOrigins = [
-  'https://7dd3-41-90-67-38.ngrok-free.app', 
-  'http://localhost', 
-  'http://localhost:8100'
-];
-
-// Apply CORS middleware to allow specific origins
-app.use(cors({
-  origin: function (origin, callback) {
-    // Check if the request origin is in the allowed list
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true // Allows sending cookies across origins
-}));
-
-// Middleware for parsing JSON and URL-encoded data and cookies
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Route handlers
+app.use(cors({
+  origin: ['http://localhost:8100'], // Allow only localhost:8100
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow these methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // Allow these headers
+  credentials: true, // Allow sending cookies from frontend to backend
+}));
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/appointments', appointmentRoutes);
@@ -62,8 +47,9 @@ app.use('/api/posts', postRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/schedules', scheduleRoutes);
+app.use('/api/payments', paymentRoutes); // Register the payment route
+app.use('/api/prescriptions', prescriptionRoutes); // Register the prescription route
 
-// Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '/frontend/dist')));
 
@@ -72,7 +58,6 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// Start server and connect to MongoDB
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   connectMongoDB();
