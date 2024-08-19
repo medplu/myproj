@@ -33,11 +33,18 @@ app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// CORS configuration
 app.use(cors({
-  origin: ['http://localhost:8100'], // Allow only localhost:8100
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow these methods
-  allowedHeaders: ['Content-Type', 'Authorization'], // Allow these headers
-  credentials: true, // Allow sending cookies from frontend to backend
+  origin: (origin, callback) => {
+    if (!origin || origin.startsWith('http://localhost') || origin === 'http://localhost:8100') {
+      callback(null, true); // Allow localhost and localhost:8100
+    } else {
+      callback(new Error('Not allowed by CORS')); // Deny other origins
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
 }));
 
 app.use('/api/auth', authRoutes);
