@@ -1,6 +1,9 @@
 import Prescription from '../models/prescription.model.js';
 import Doctor from '../models/doctor.model.js';
 import User from '../models/user.model.js'; // For user validation
+import Pharmacist from '../models/pharmacist.model.js'; // Import Pharmacist model
+
+// Create a new prescription
 export const createPrescription = async (req, res) => {
   console.log('Request Body:', req.body); // Log the incoming request body
 
@@ -39,8 +42,6 @@ export const createPrescription = async (req, res) => {
   }
 };
 
-
-
 // Share prescription with a chosen pharmacist
 export const sharePrescriptionWithPharmacist = async (req, res) => {
   const { prescription_id, pharmacist_id } = req.body;
@@ -75,7 +76,9 @@ export const getUserPrescriptions = async (req, res) => {
   const { user_id } = req.params;
 
   try {
-    const prescriptions = await Prescription.find({ user_id }).populate('doctor_id', 'name').populate('sharedWith', 'name');
+    const prescriptions = await Prescription.find({ user_id })
+      .populate('doctor_id', 'name')
+      .populate('sharedWith', 'name email phone'); // Populate pharmacist details
     
     res.status(200).json({
       success: true,
@@ -93,7 +96,9 @@ export const getPharmacistPrescriptions = async (req, res) => {
   const { pharmacist_id } = req.params;
 
   try {
-    const prescriptions = await Prescription.find({ sharedWith: pharmacist_id }).populate('user_id', 'name').populate('doctor_id', 'name');
+    const prescriptions = await Prescription.find({ sharedWith: pharmacist_id })
+      .populate('user_id', 'name')
+      .populate('doctor_id', 'name');
     
     res.status(200).json({
       success: true,
