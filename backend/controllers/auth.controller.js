@@ -3,16 +3,12 @@ import User from '../models/user.model.js';
 import Doctor from '../models/doctor.model.js';
 import bcrypt from 'bcryptjs';
 
-// Utility function to generate JWT with a specified expiration
-const generateToken = (userId, expiresIn = '15d') => {
-    try {
-        return jwt.sign({ userId }, process.env.JWT_SECRET_KEY, { expiresIn });
-    } catch (error) {
-        console.error("Token generation error:", error.message);
-        throw new Error("Error generating token");
-    }
+// Utility function to generate JWT
+const generateToken = (userId, expiresIn) => {
+    return jwt.sign({ userId }, process.env.JWT_SECRET_KEY, {
+        expiresIn  // expiration time passed as a parameter
+    });
 };
-
 
 // Function to validate additional information based on account type
 const validateAdditionalInfo = (accountType, additionalInfo) => {
@@ -94,8 +90,7 @@ export const signup = async (req, res) => {
             await newDoctor.save();
         }
 
-        // Generate a token with a default expiration of 15 days
-        const token = generateToken(newUser._id);
+        const token = generateToken(newUser._id, '15d'); // Token valid for 15 days
         res.status(201).json({ 
             message: "Account created successfully",
             token,
@@ -121,16 +116,9 @@ export const login = async (req, res) => {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
-        // Generate an access token with a 15-minute expiration and a refresh token with a 7-day expiration
+        // Generate an access token and refresh token
         const accessToken = generateToken(user._id, '15m'); // Access token valid for 15 minutes
         const refreshToken = generateToken(user._id, '7d');  // Refresh token valid for 7 days
-
-        console.log('Access Token:', accessToken); // Debugging line
-        console.log('Refresh Token:', refreshToken); // Debugging line
-
-        if (!accessToken || !refreshToken) {
-            return res.status(500).json({ message: "Error generating tokens" });
-        }
 
         res.status(200).json({
             accessToken,
@@ -152,7 +140,6 @@ export const login = async (req, res) => {
     }
 };
 
-
 // Logout controller
 export const logout = async (req, res) => {
     try {
@@ -164,7 +151,7 @@ export const logout = async (req, res) => {
     }
 };
 
-// Refresh token controller
+// Refresh Token controller
 export const refreshToken = async (req, res) => {
     const { token } = req.body;
     if (!token) return res.status(401).json({ message: "Token is required" });
@@ -172,8 +159,7 @@ export const refreshToken = async (req, res) => {
     try {
         // Verify the refresh token
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        // Generate a new access token with a 15-minute expiration
-        const newAccessToken = generateToken(decoded.userId, '15m');
+        const newAccessToken = generateToken(decoded.userId, '15m'); // New access token valid for 15 minutes
         res.status(200).json({ accessToken: newAccessToken });
     } catch (error) {
         console.error("Error in refreshToken controller", error.message);
@@ -220,10 +206,10 @@ export const getMe = async (req, res) => {
 
 // ForgotPassword controller
 export const forgotPassword = async (req, res) => {
-    res.json({ data: 'you hit the forgot-password end point' });
+    res.json({ data: 'You hit the forgot-password endpoint' });
 };
 
 // ResetPassword controller
 export const resetPassword = async (req, res) => {
-    res.json({ data: 'you hit the reset-password end point' });
+    res.json({ data: 'You hit the reset-password endpoint' });
 };
