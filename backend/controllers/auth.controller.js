@@ -125,6 +125,13 @@ export const login = async (req, res) => {
         const accessToken = generateToken(user._id, '15m'); // Access token valid for 15 minutes
         const refreshToken = generateToken(user._id, '7d');  // Refresh token valid for 7 days
 
+        console.log('Access Token:', accessToken); // Debugging line
+        console.log('Refresh Token:', refreshToken); // Debugging line
+
+        if (!accessToken || !refreshToken) {
+            return res.status(500).json({ message: "Error generating tokens" });
+        }
+
         res.status(200).json({
             accessToken,
             refreshToken,
@@ -144,6 +151,7 @@ export const login = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 // Logout controller
 export const logout = async (req, res) => {
