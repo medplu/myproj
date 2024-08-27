@@ -36,7 +36,7 @@ app.use(cookieParser());
 // CORS configuration
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || origin.startsWith('http://localhost') || origin === 'http://localhost:8100') {
+    if (!origin || origin.startsWith('http://localhost') || origin === 'http://localhost:5173') {
       callback(null, true); // Allow localhost and localhost:8100
     } else {
       callback(new Error('Not allowed by CORS')); // Deny other origins
