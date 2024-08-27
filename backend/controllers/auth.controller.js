@@ -116,9 +116,13 @@ export const login = async (req, res) => {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
-        const token = generateToken(user._id);
+        // Generate an access token and refresh token
+        const accessToken = generateToken(user._id, '15m'); // Access token valid for 15 minutes
+        const refreshToken = generateToken(user._id, '7d');  // Refresh token valid for 7 days
+
         res.status(200).json({
-            token,
+            accessToken,
+            refreshToken,
             _id: user._id,
             username: user.username,
             email: user.email,
