@@ -150,6 +150,20 @@ export const logout = async (req, res) => {
     }
 };
 
+export const refreshToken = async (req, res) => {
+    const { token } = req.body;
+    if (!token) return res.status(401).json({ message: "Token is required" });
+
+    try {
+        // Verify the refresh token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const newAccessToken = generateToken(decoded.userId, '15m'); // New access token valid for 15 minutes
+        res.status(200).json({ accessToken: newAccessToken });
+    } catch (error) {
+        console.error("Error in refreshToken controller", error.message);
+        res.status(403).json({ message: "Invalid token" });
+    }
+};
 
 
 // GetMe controller
