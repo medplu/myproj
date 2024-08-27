@@ -3,10 +3,10 @@ import User from '../models/user.model.js';
 import Doctor from '../models/doctor.model.js';
 import bcrypt from 'bcryptjs';
 
-// Utility function to generate JWT
-const generateToken = (userId) => {
+// Utility function to generate JWT with a specified expiration
+const generateToken = (userId, expiresIn = '15d') => {
     return jwt.sign({ userId }, process.env.JWT_SECRET_KEY, {
-        expiresIn: '15d'  // token expires in 15 days
+        expiresIn
     });
 };
 
@@ -90,6 +90,7 @@ export const signup = async (req, res) => {
             await newDoctor.save();
         }
 
+        // Generate a token with a default expiration of 15 days
         const token = generateToken(newUser._id);
         res.status(201).json({ 
             message: "Account created successfully",
@@ -116,7 +117,7 @@ export const login = async (req, res) => {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
-        // Generate an access token and refresh token
+        // Generate an access token with a 15-minute expiration and a refresh token with a 7-day expiration
         const accessToken = generateToken(user._id, '15m'); // Access token valid for 15 minutes
         const refreshToken = generateToken(user._id, '7d');  // Refresh token valid for 7 days
 
@@ -139,6 +140,7 @@ export const login = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
 // Logout controller
 export const logout = async (req, res) => {
     try {
@@ -150,6 +152,7 @@ export const logout = async (req, res) => {
     }
 };
 
+// Refresh token controller
 export const refreshToken = async (req, res) => {
     const { token } = req.body;
     if (!token) return res.status(401).json({ message: "Token is required" });
@@ -157,14 +160,14 @@ export const refreshToken = async (req, res) => {
     try {
         // Verify the refresh token
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        const newAccessToken = generateToken(decoded.userId, '15m'); // New access token valid for 15 minutes
+        // Generate a new access token with a 15-minute expiration
+        const newAccessToken = generateToken(decoded.userId, '15m');
         res.status(200).json({ accessToken: newAccessToken });
     } catch (error) {
         console.error("Error in refreshToken controller", error.message);
         res.status(403).json({ message: "Invalid token" });
     }
 };
-
 
 // GetMe controller
 export const getMe = async (req, res) => {
@@ -203,13 +206,12 @@ export const getMe = async (req, res) => {
     }
 };
 
-
 // ForgotPassword controller
 export const forgotPassword = async (req, res) => {
     res.json({ data: 'you hit the forgot-password end point' });
-}
+};
 
 // ResetPassword controller
 export const resetPassword = async (req, res) => {
     res.json({ data: 'you hit the reset-password end point' });
-}
+};
