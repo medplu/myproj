@@ -5,10 +5,14 @@ import bcrypt from 'bcryptjs';
 
 // Utility function to generate JWT with a specified expiration
 const generateToken = (userId, expiresIn = '15d') => {
-    return jwt.sign({ userId }, process.env.JWT_SECRET_KEY, {
-        expiresIn
-    });
+    try {
+        return jwt.sign({ userId }, process.env.JWT_SECRET_KEY, { expiresIn });
+    } catch (error) {
+        console.error("Token generation error:", error.message);
+        throw new Error("Error generating token");
+    }
 };
+
 
 // Function to validate additional information based on account type
 const validateAdditionalInfo = (accountType, additionalInfo) => {
