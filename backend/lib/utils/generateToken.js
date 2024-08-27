@@ -1,9 +1,11 @@
 import jwt from 'jsonwebtoken';
 
-export const generateToken = (userId) => {
-    const token = jwt.sign({ userId }, process.env.JWT_SECRET_KEY, {
-        expiresIn: '15d' // You can change the expiration time as needed
-    });
-
-    return token;
+const generateToken = (userId, expiresIn = '15d') => {
+    try {
+        return jwt.sign({ userId }, process.env.JWT_SECRET_KEY, { expiresIn });
+    } catch (error) {
+        console.error("Token generation error:", error.message);
+        throw new Error("Error generating token");
+    }
 };
+
