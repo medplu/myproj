@@ -10,7 +10,33 @@ import Doctor from '../models/doctor.model.js';
 
 // Set Schedule
 
+export const updateConsultationFee = async (req, res) => {
+  const { doctorId } = req.params;
+  const { consultationFee } = req.body;
 
+  // Validate request body
+  if (typeof consultationFee !== 'number' || consultationFee < 0) {
+    return res.status(400).json({ message: 'Invalid consultation fee' });
+  }
+
+  try {
+    // Find and update the doctor's consultation fee
+    const updatedDoctor = await Doctor.findByIdAndUpdate(
+      doctorId,
+      { consultationFee },
+      { new: true }
+    );
+
+    if (!updatedDoctor) {
+      return res.status(404).json({ message: 'Doctor not found' });
+    }
+
+    res.status(200).json(updatedDoctor);
+  } catch (error) {
+    console.error(`Error updating consultation fee: ${error.message}`);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
 // Update or set doctor's schedule
 export const updateDoctorSchedule = async (req, res) => {
     try {
