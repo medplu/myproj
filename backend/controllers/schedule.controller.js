@@ -1,12 +1,18 @@
 import Doctor from '../models/doctor.model.js';
 
-// Create or update schedule for a specific day
+
 export const createOrUpdateSchedule = async (req, res) => {
   const { doctorId } = req.params;
-  const { day, timeSlots } = req.body; // Assumes timeSlots is an array of timeSlot objects
+  const { day, timeSlots } = req.body;
+
+  const validDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
   if (!day || !timeSlots || !Array.isArray(timeSlots)) {
     return res.status(400).json({ message: 'Invalid input: day and timeSlots are required' });
+  }
+
+  if (!validDays.includes(day)) {
+    return res.status(400).json({ message: 'Invalid day provided' });
   }
 
   try {
@@ -24,7 +30,7 @@ export const createOrUpdateSchedule = async (req, res) => {
     }));
 
     await doctor.save();
-    res.json(doctor);
+    res.json({ message: 'Schedule updated successfully', schedule: doctor.schedule });
   } catch (error) {
     console.error('Error creating or updating schedule:', error);
     res.status(500).json({ message: 'Server error while creating or updating schedule' });
