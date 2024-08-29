@@ -2,7 +2,7 @@ import Appointment from '../models/appointment.model.js';
 
 // Controller to create a new appointment
 export const createAppointment = async (req, res) => {
-  const { name, phone, email, gender, age, Date, doctorId, userId } = req.body;
+  const { name, phone, email, gender, age, Date, doctorId, userId, time } = req.body;
 
   if (!name) return res.status(400).json({ message: 'Missing name field' });
   if (!phone) return res.status(400).json({ message: 'Missing phone field' });
@@ -12,6 +12,7 @@ export const createAppointment = async (req, res) => {
   if (!Date) return res.status(400).json({ message: 'Missing Date field' });
   if (!doctorId) return res.status(400).json({ message: 'Missing doctorId field' });
   if (!userId) return res.status(400).json({ message: 'Missing userId field' });
+  if (!time) return res.status(400).json({ message: 'Missing time field' });
 
   try {
     const appointment = new Appointment({
@@ -23,6 +24,7 @@ export const createAppointment = async (req, res) => {
       Date,
       doctor_id: doctorId,
       user_id: userId,
+      time,
       status: 'new'
     });
 
@@ -35,6 +37,8 @@ export const createAppointment = async (req, res) => {
   }
 };
 
+
+ 
 // Controller to get all appointments for a specific doctor
 export const getAppointments = async (req, res) => {
   try {
