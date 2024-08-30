@@ -177,6 +177,14 @@ export const getMe = async (req, res) => {
             profileimg: user.profileimg,
             coverimg: user.coverimg,
             specialties: user.specialties,
+            bio: user.bio,
+            link: user.link,
+            isVerified: user.isVerified,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+            phone: user.phone, // New attribute
+            gender: user.gender, // New attribute
+            age: user.age, // New attribute
             doctorInfo,
         });
     } catch (error) {
