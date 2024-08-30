@@ -1,5 +1,5 @@
 import Appointment from '../models/appointment.model.js';
-import { io } from '../path/to/server'; // Adjust the path to where `io` is exported
+import { io } from '../index.js'; // Adjust the path to where `io` is exported
 
 // Controller to create a new appointment
 export const createAppointment = async (req, res) => {
