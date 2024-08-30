@@ -127,3 +127,6 @@ server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   connectMongoDB();
 });
+
+// Export the io object for use in other files
+export { io };
