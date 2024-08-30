@@ -48,27 +48,25 @@ const userSchema = new mongoose.Schema(
             type: String,
             default: "",
         },
-       specialties: {
-        type: String,
-        default: null,
-       },
-       location: {
-        type: {
-            type: String, // Don't do `{ location: { type: String } }`
-            enum: ['Point'], // 'location.type' must be 'Point'
-            
+        specialties: {
+            type: String,
+            default: null,
         },
-        coordinates: {
-            type: [Number],
-            required: true
-        }
-    },
+        location: {
+            type: {
+                type: String, // Don't do `{ location: { type: String } }`
+                enum: ['Point'], // 'location.type' must be 'Point'
+            },
+            coordinates: {
+                type: [Number],
+                required: true
+            }
+        },
         accountType: {
             type: String,
             required: true,
             enum: ['client', 'student', 'professional', 'institution'],
         },
-        
         link: {
             type: String,
             default: "",
@@ -76,6 +74,18 @@ const userSchema = new mongoose.Schema(
         isVerified: {
             type: Boolean,
             default: false,
+        },
+        phone: {
+            type: String,
+            required: true,
+        },
+        gender: {
+            type: String,
+            required: true,
+        },
+        age: {
+            type: Number,
+            required: true,
         },
     },
     { timestamps: true }
