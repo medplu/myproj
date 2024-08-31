@@ -123,12 +123,15 @@ export const ServicesList = async (req, res, next) => {
     }
 }
 
-// controllers/doctor.controller.js
 
-// Fetch list of doctors
+
 export const DoctorList = async (req, res, next) => {
     try {
-        const doctorList = await Doctor.find({}, { _id: 1, name: 1, image: 1, bio: 1, experience: 1, location: 1, specialties: 1, schedule: 1 });
+        // Fetch only doctors with a consultationFee
+        const doctorList = await Doctor.find(
+            { consultationFee: { $exists: true } }, // Filter to include only doctors with consultationFee
+            { _id: 1, name: 1, image: 1, bio: 1, experience: 1, location: 1, specialties: 1, schedule: 1, consultationFee: 1 } // Include consultationFee in the projection
+        );
         res.status(200).json(doctorList);
     } catch (err) {
         next(err);
