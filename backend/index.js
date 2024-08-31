@@ -1,7 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import http from 'http'; // Import http module
-import socketIo from 'socket.io'; // Import socket.io
+import { Server as SocketIOServer } from 'socket.io'; // Correct import for socket.io
 import authRoutes from './routes/auth.route.js';
 import userRoutes from './routes/user.route.js';
 import postRoutes from './routes/post.route.js';
@@ -27,7 +27,7 @@ cloudinary.config({
 
 const app = express();
 const server = http.createServer(app); // Create an HTTP server
-const io = socketIo(server); // Initialize socket.io with the HTTP server
+const io = new SocketIOServer(server); // Initialize socket.io with the HTTP server
 
 const PORT = process.env.PORT || 3000;
 
