@@ -131,6 +131,7 @@ export const DoctorList = async (req, res, next) => {
             { consultationFee: { $exists: true, $ne: null } }, // Filter to include only doctors with non-null consultationFee
             { _id: 1, name: 1, image: 1, bio: 1, experience: 1, location: 1, specialties: 1, schedule: 1, consultationFee: 1 } // Include consultationFee in the projection
         );
+        console.log('Fetched doctors from DB:', doctorList); // Log the fetched doctors
         res.status(200).json(doctorList);
     } catch (err) {
         next(err);
