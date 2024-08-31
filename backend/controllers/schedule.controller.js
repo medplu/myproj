@@ -5,7 +5,7 @@ export const createOrUpdateSchedule = async (req, res) => {
   const { doctorId } = req.params;
   const { day, timeSlots } = req.body;
 
-  const validDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+  const validDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
   if (!day || !timeSlots || !Array.isArray(timeSlots)) {
     return res.status(400).json({ message: 'Invalid input: day and timeSlots are required' });
@@ -21,6 +21,14 @@ export const createOrUpdateSchedule = async (req, res) => {
       return res.status(404).json({ message: 'Doctor not found' });
     }
 
+    // Your logic to create or update the schedule goes here
+
+    res.status(200).json({ message: 'Schedule updated successfully' });
+  } catch (error) {
+    console.error('Error updating schedule:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
     // Update the schedule for the specified day
     doctor.schedule[day] = timeSlots.map(slot => ({
       startTime: slot.startTime,
