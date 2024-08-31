@@ -21,14 +21,6 @@ export const createOrUpdateSchedule = async (req, res) => {
       return res.status(404).json({ message: 'Doctor not found' });
     }
 
-    // Your logic to create or update the schedule goes here
-
-    res.status(200).json({ message: 'Schedule updated successfully' });
-  } catch (error) {
-    console.error('Error updating schedule:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
     // Update the schedule for the specified day
     doctor.schedule[day] = timeSlots.map(slot => ({
       startTime: slot.startTime,
@@ -44,7 +36,6 @@ export const createOrUpdateSchedule = async (req, res) => {
     res.status(500).json({ message: 'Server error while creating or updating schedule' });
   }
 };
-
 // Get schedule for a specific day
 export const getScheduleByDay = async (req, res) => {
   const { doctorId, day } = req.params;
