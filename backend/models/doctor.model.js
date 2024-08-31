@@ -56,7 +56,9 @@ const doctorSchema = new mongoose.Schema({
     Tuesday: [timeSlotSchema],
     Wednesday: [timeSlotSchema],
     Thursday: [timeSlotSchema],
-    Friday: [timeSlotSchema]
+    Friday: [timeSlotSchema],
+    Saturday: [timeSlotSchema], // Added Saturday
+    Sunday: [timeSlotSchema]    // Added Sunday
   }
 }, { timestamps: true });
 
