@@ -124,12 +124,11 @@ export const ServicesList = async (req, res, next) => {
 }
 
 
-
 export const DoctorList = async (req, res, next) => {
     try {
-        // Fetch only doctors with a consultationFee
+        // Fetch only doctors with a non-null consultationFee
         const doctorList = await Doctor.find(
-            { consultationFee: { $exists: true } }, // Filter to include only doctors with consultationFee
+            { consultationFee: { $exists: true, $ne: null } }, // Filter to include only doctors with non-null consultationFee
             { _id: 1, name: 1, image: 1, bio: 1, experience: 1, location: 1, specialties: 1, schedule: 1, consultationFee: 1 } // Include consultationFee in the projection
         );
         res.status(200).json(doctorList);
