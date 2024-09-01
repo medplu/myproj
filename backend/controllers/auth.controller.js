@@ -28,7 +28,7 @@ const validateAdditionalInfo = (accountType, additionalInfo) => {
 // Signup controller
 export const signup = async (req, res) => {
     try {
-        const { username, fullName, email, password, accountType, additionalInfo } = req.body;
+        const { username, fullName, email, password, accountType, additionalInfo, phone, gender, age } = req.body;
 
         const emailRegex = /\S+@\S+\.\S+/;
         if (!emailRegex.test(email)) {
@@ -59,6 +59,11 @@ export const signup = async (req, res) => {
             return res.status(400).json({ message: additionalInfoErrors.join(", ") });
         }
 
+        // Validate age
+        if (isNaN(age) || age <= 0) {
+            return res.status(400).json({ message: "Invalid age" });
+        }
+
         // Hash the password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
@@ -71,6 +76,9 @@ export const signup = async (req, res) => {
             password: hashedPassword,
             accountType,
             specialties: additionalInfo?.professionalTitle,
+            phone,
+            gender,
+            age,
         });
 
         // Save the user
@@ -86,6 +94,9 @@ export const signup = async (req, res) => {
                 experience: additionalInfo?.experience || "",
                 image: null,
                 bio: null,
+                phone,
+                gender,
+                age,
             });
             await newDoctor.save();
         }
