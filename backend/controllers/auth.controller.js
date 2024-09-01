@@ -16,6 +16,8 @@ const generateVerificationCode = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
+import User from '../models/User.js'; // Adjust the path as necessary
+
 export const verifyEmail = async (req, res) => {
     try {
         const { email, code } = req.body;
@@ -26,8 +28,15 @@ export const verifyEmail = async (req, res) => {
             return res.status(400).json({ message: "Invalid or expired verification code" });
         }
 
+        // Check if the verification code is expired
+        const codeExpirationTime = user.emailVerificationCodeExpiration; // Assuming you have a field for expiration time
+        if (codeExpirationTime && new Date() > codeExpirationTime) {
+            return res.status(400).json({ message: "Verification code has expired" });
+        }
+
         user.isVerified = true;
         user.emailVerificationCode = undefined; // Clear the code once verified
+        user.emailVerificationCodeExpiration = undefined; // Clear the expiration time
         await user.save();
 
         res.status(200).json({ message: "Email verified successfully" });
