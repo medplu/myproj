@@ -16,7 +16,7 @@ const generateVerificationCode = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-import User from '../models/User.js'; // Adjust the path as necessary
+
 
 export const verifyEmail = async (req, res) => {
     try {
