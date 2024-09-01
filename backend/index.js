@@ -29,7 +29,7 @@ const app = express();
 const server = http.createServer(app); // Create an HTTP server
 const io = new SocketIOServer(server, {
   cors: {
-    origin: 'http://localhost:8100', // Allow requests from this origin
+    origin: '*', // Allow all origins temporarily
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -46,13 +46,7 @@ app.use(cookieParser());
 
 // CORS configuration
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || origin.startsWith('http://localhost') || origin === 'http://localhost:8100') {
-      callback(null, true); // Allow localhost and localhost:8100
-    } else {
-      callback(new Error('Not allowed by CORS')); // Deny other origins
-    }
-  },
+  origin: '*', // Allow all origins temporarily
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
