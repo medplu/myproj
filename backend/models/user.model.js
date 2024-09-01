@@ -56,11 +56,10 @@ const userSchema = new mongoose.Schema(
             type: {
                 type: String,
                 enum: ['Point'], // 'location.type' must be 'Point'
-              
             },
             coordinates: {
                 type: [Number], // Array of numbers for [longitude, latitude]
-                required: true, // Ensure coordinates are always provided
+              
             },
         },
         accountType: {
@@ -79,6 +78,10 @@ const userSchema = new mongoose.Schema(
         emailVerificationCode: {
             type: String,
             default: null, // Store the verification code
+        },
+        emailVerificationCodeExpiration: {
+            type: Date,
+            default: null, // Store the expiration time for the verification code
         },
         phone: {
             type: String,
