@@ -5,7 +5,58 @@ const timeSlotSchema = new mongoose.Schema({
   endTime: String,
   isBooked: { type: Boolean, default: false },
   patientId: { type: mongoose.Schema.Types.ObjectId, ref: 'Patient', default: null }
-});
+});import mongoose from 'mongoose';
+
+const userSchema = new mongoose.Schema({
+    username: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    fullName: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
+    age: {
+        type: Number,
+        required: true
+    },
+    gender: {
+        type: String,
+        required: true
+    },
+    phone: {
+        type: String,
+        required: true
+    },
+    accountType: {
+        type: String,
+        required: true
+    },
+    additionalInfo: {
+        professionalTitle: {
+            type: String,
+            required: function() {
+                return this.accountType === 'professional';
+            }
+        }
+    },
+    termsAndConditions: {
+        type: Boolean,
+        required: true
+    }
+}, { timestamps: true });
+
+export default mongoose.model('User', userSchema);
 
 const doctorSchema = new mongoose.Schema({
   userId: {
