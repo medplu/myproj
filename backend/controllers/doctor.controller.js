@@ -129,13 +129,6 @@ export const DoctorList = async (req, res, next) => {
     // Fetch only doctors with a non-null consultationFee
     const doctorList = await Doctor.aggregate([
       {
-        $addFields: {
-          consultationFee: {
-            $toInt: "$consultationFee.$numberInt"
-          }
-        }
-      },
-      {
         $match: {
           consultationFee: { $exists: true, $ne: null }
         }
@@ -162,6 +155,7 @@ export const DoctorList = async (req, res, next) => {
     next(err);
   }
 };
+
 // get a single doctor given the user_id
 // Get Doctor
 export const getDoctor = async (req, res, next) => {
