@@ -14,8 +14,15 @@ export const verifyToken = (req, res, next) => {
     return next(createError(401, "You are not authenticated!"));
   }
 
-  jwt.verify(token, process.env.JWT_SECRET_KEY, (err, user) => {
+  jwt.verify(token, process.env.JWT_SECRET_KEY, async (err, user) => {
     if (err) return next(createError(403, "Token is not valid!"));
+
+    // Fetch the user from the database to check email verification status
+    const foundUser = await User.findById(user.userId);
+    if (!foundUser || !foundUser.isVerified) {
+      return next(createError(403, "Email not verified!"));
+    }
+
     req.user = user;
     next();
   });
