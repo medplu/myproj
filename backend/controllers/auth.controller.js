@@ -45,6 +45,31 @@ export const verifyEmail = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+export const resendVerificationCode = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json({ message: "User not found" });
+        }
+
+        // Generate a new verification code
+        const newCode = generateVerificationCode();
+        user.emailVerificationCode = newCode;
+        user.emailVerificationCodeExpiration = new Date(Date.now() + 3600000); // Set expiration time to 1 hour from now
+        await user.save();
+
+        // Send the new verification code via email
+        await sendVerificationEmail(user.email, newCode);
+
+        res.status(200).json({ message: "Verification code resent successfully" });
+    } catch (error) {
+        console.error("Error in resendVerificationCode controller:", error.message);
+        res.status(500).json({ message: error.message });
+    }
+};
 
 // Function to validate additional information based on account type
 const validateAdditionalInfo = (accountType, additionalInfo) => {
@@ -114,6 +139,7 @@ export const signup = async (req, res) => {
             gender,
             age,
             emailVerificationCode: verificationCode,
+            emailVerificationCodeExpiration: new Date(Date.now() + 3600000) // Set expiration time to 1 hour from now
         });
 
         await newUser.save();
