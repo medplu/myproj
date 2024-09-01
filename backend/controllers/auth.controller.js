@@ -22,6 +22,8 @@ export const verifyEmail = async (req, res) => {
     try {
         const { email, code } = req.body;
 
+        console.log('Verifying email:', email, 'with code:', code);
+
         const user = await User.findOne({ email, emailVerificationCode: code });
 
         if (!user) {
@@ -29,7 +31,7 @@ export const verifyEmail = async (req, res) => {
         }
 
         // Check if the verification code is expired
-        const codeExpirationTime = user.emailVerificationCodeExpiration; // Assuming you have a field for expiration time
+        const codeExpirationTime = user.emailVerificationCodeExpiration;
         if (codeExpirationTime && new Date() > codeExpirationTime) {
             return res.status(400).json({ message: "Verification code has expired" });
         }
@@ -48,6 +50,8 @@ export const verifyEmail = async (req, res) => {
 export const resendVerificationCode = async (req, res) => {
     try {
         const { email } = req.body;
+
+        console.log('Resending verification code to email:', email);
 
         const user = await User.findOne({ email });
 
