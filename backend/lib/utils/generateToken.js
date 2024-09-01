@@ -9,3 +9,9 @@ const generateToken = (userId, expiresIn = '15d') => {
     }
 };
 
+// Example usage for email verification
+const generateEmailVerificationToken = (userId) => {
+    return generateToken(userId, '1h'); // Token expires in 1 hour
+};
+
+export { generateToken, generateEmailVerificationToken };
