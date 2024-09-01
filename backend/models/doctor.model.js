@@ -5,7 +5,7 @@ const timeSlotSchema = new mongoose.Schema({
   endTime: String,
   isBooked: { type: Boolean, default: false },
   patientId: { type: mongoose.Schema.Types.ObjectId, ref: 'Patient', default: null }
-});import mongoose from 'mongoose';
+});
 
 const userSchema = new mongoose.Schema({
     username: {
