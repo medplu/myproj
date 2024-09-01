@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema(
             required: true,
             unique: true,
         },
-        fullName:{
+        fullName: {
             type: String,
             required: true,            
         },
@@ -54,13 +54,14 @@ const userSchema = new mongoose.Schema(
         },
         location: {
             type: {
-                type: String, // Don't do `{ location: { type: String } }`
+                type: String,
                 enum: ['Point'], // 'location.type' must be 'Point'
+                required: true, // Ensure 'type' is always provided
             },
             coordinates: {
-                type: [Number],
-                required: true
-            }
+                type: [Number], // Array of numbers for [longitude, latitude]
+                required: true, // Ensure coordinates are always provided
+            },
         },
         accountType: {
             type: String,
@@ -73,7 +74,11 @@ const userSchema = new mongoose.Schema(
         },
         isVerified: {
             type: Boolean,
-            default: false,
+            default: false, // User starts as unverified
+        },
+        emailVerificationToken: {
+            type: String,
+            default: null, // Initially no token
         },
         phone: {
             type: String,
