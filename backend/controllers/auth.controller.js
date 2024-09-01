@@ -10,19 +10,24 @@ const generateToken = (userId) => {
         expiresIn: '15d'  // token expires in 15 days
     });
 };
+
+// Utility function to generate a 6-digit verification code
+const generateVerificationCode = () => {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
 export const verifyEmail = async (req, res) => {
     try {
-        const { token } = req.query;
+        const { email, code } = req.body;
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        const user = await User.findOne({ _id: decoded.userId, emailVerificationToken: token });
+        const user = await User.findOne({ email, emailVerificationCode: code });
 
         if (!user) {
-            return res.status(400).json({ message: "Invalid or expired verification token" });
+            return res.status(400).json({ message: "Invalid or expired verification code" });
         }
 
         user.isVerified = true;
-        user.emailVerificationToken = undefined;
+        user.emailVerificationCode = undefined; // Clear the code once verified
         await user.save();
 
         res.status(200).json({ message: "Email verified successfully" });
@@ -46,6 +51,7 @@ const validateAdditionalInfo = (accountType, additionalInfo) => {
     }
     return errors;
 };
+
 export const signup = async (req, res) => {
     try {
         const { username, fullName, email, password, accountType, additionalInfo, phone, gender, age } = req.body;
@@ -86,7 +92,7 @@ export const signup = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        const verificationToken = generateVerificationToken(newUser._id);
+        const verificationCode = generateVerificationCode();
 
         const newUser = new User({
             username,
@@ -98,12 +104,12 @@ export const signup = async (req, res) => {
             phone,
             gender,
             age,
-            emailVerificationToken: verificationToken,
+            emailVerificationCode: verificationCode,
         });
 
         await newUser.save();
 
-        await sendVerificationEmail(newUser.email, verificationToken);
+        await sendVerificationEmail(newUser.email, verificationCode);
 
         const token = generateToken(newUser._id);
         const redirectUrl = accountType === 'professional' ? '/doctor' : '/';
@@ -119,7 +125,6 @@ export const signup = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
 
 // Login controller
 export const login = async (req, res) => {
@@ -154,18 +159,16 @@ export const login = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
 // Logout controller
 export const logout = async (req, res) => {
     try {
-        // Clear the JWT by setting an expired token (optional in token-based auth, mainly for UI handling)
         res.status(200).json({ message: "Logged out successfully" });
     } catch (error) {
         console.log("Error in logout controller", error.message);
         res.status(500).json({ message: error.message });
     }
 };
-
-
 
 // GetMe controller
 export const getMe = async (req, res) => {
@@ -175,16 +178,12 @@ export const getMe = async (req, res) => {
             return res.status(400).json({ message: "User not found" });
         }
 
-        // Initialize doctorInfo as null
         let doctorInfo = null;
 
-        // Check if user is a professional and a doctor
         if (user.accountType === 'professional' && user.specialties.includes('Doctor')) {
-            // Fetch doctor information
             doctorInfo = await Doctor.findOne({ userId: user._id }).select('-__v');
         }
 
-        // Return user data along with doctor info if applicable
         res.status(200).json({
             _id: user._id,
             username: user.username,
@@ -201,9 +200,9 @@ export const getMe = async (req, res) => {
             isVerified: user.isVerified,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt,
-            phone: user.phone, // New attribute
-            gender: user.gender, // New attribute
-            age: user.age, // New attribute
+            phone: user.phone,
+            gender: user.gender,
+            age: user.age,
             doctorInfo,
         });
     } catch (error) {
@@ -212,13 +211,12 @@ export const getMe = async (req, res) => {
     }
 };
 
-
 // ForgotPassword controller
 export const forgotPassword = async (req, res) => {
     res.json({ data: 'you hit the forgot-password end point' });
-}
+};
 
 // ResetPassword controller
 export const resetPassword = async (req, res) => {
     res.json({ data: 'you hit the reset-password end point' });
-}
+};
