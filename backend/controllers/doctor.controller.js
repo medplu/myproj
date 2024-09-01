@@ -125,47 +125,42 @@ export const ServicesList = async (req, res, next) => {
 
 
 export const DoctorList = async (req, res, next) => {
-    try {
-        // Fetch only doctors with a non-null consultationFee
-        const doctorList = await Doctor.aggregate([
-            {
-                $addFields: {
-                    consultationFee: {
-                        $convert: {
-                            input: "$consultationFee.$numberInt",
-                            to: "int",
-                            onError: null, // If conversion fails, set to null
-                            onNull: null  // If input is null, set to null
-                        }
-                    }
-                }
-            },
-            {
-                $match: {
-                    consultationFee: { $exists: true, $ne: null }
-                }
-            },
-            {
-                $project: {
-                    _id: 1,
-                    name: 1,
-                    image: 1,
-                    bio: 1,
-                    experience: 1,
-                    location: 1,
-                    specialties: 1,
-                    schedule: 1,
-                    consultationFee: 1
-                }
-            }
-        ]);
+  try {
+    // Fetch only doctors with a non-null consultationFee
+    const doctorList = await Doctor.aggregate([
+      {
+        $addFields: {
+          consultationFee: {
+            $toInt: "$consultationFee.$numberInt"
+          }
+        }
+      },
+      {
+        $match: {
+          consultationFee: { $exists: true, $ne: null }
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          image: 1,
+          bio: 1,
+          experience: 1,
+          location: 1,
+          specialties: 1,
+          schedule: 1,
+          consultationFee: 1
+        }
+      }
+    ]);
 
-        console.log('Fetched doctors from DB:', doctorList); // Log the fetched doctors
-        res.status(200).json(doctorList);
-    } catch (err) {
-        console.error('Error fetching doctors:', err); // Log any errors
-        next(err);
-    }
+    console.log('Fetched doctors from DB:', doctorList); // Log the fetched doctors
+    res.status(200).json(doctorList);
+  } catch (err) {
+    console.error('Error fetching doctors:', err); // Log any errors
+    next(err);
+  }
 };
 // get a single doctor given the user_id
 // Get Doctor
