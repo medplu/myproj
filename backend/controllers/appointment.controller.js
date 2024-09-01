@@ -1,5 +1,4 @@
 import Appointment from '../models/appointment.model.js';
-import { io } from '../index.js'; // Adjust the path to where `io` is exported
 
 // Controller to create a new appointment
 export const createAppointment = async (req, res) => {
@@ -30,14 +29,6 @@ export const createAppointment = async (req, res) => {
     });
 
     await appointment.save();
-
-    // Emit WebSocket event
-    io.to(`doctor_${doctorId}`).emit('newAppointment', {
-      id: appointment._id,
-      message: `New appointment for ${appointment.name}`,
-      type: 'appointment',
-      read: false
-    });
 
     res.status(201).json(appointment);
   } catch (error) {
@@ -118,14 +109,6 @@ export const confirmAppointment = async (req, res) => {
     appointment.status = 'confirmed';
     appointment.time = time; // Assuming you have a 'time' field in your schema
     await appointment.save();
-
-    // Notify the doctor about the confirmed appointment
-    io.to(`doctor_${appointment.doctor_id}`).emit('appointmentConfirmed', {
-      id: appointment._id,
-      message: `Appointment confirmed for ${appointment.name}`,
-      type: 'appointment',
-      read: false
-    });
 
     res.status(200).json({ message: 'Appointment confirmed', appointment });
   } catch (error) {
