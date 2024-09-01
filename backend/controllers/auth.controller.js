@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model.js';
 import Doctor from '../models/doctor.model.js';
+import { sendVerificationEmail } from '../utils/email.util.js';
 import bcrypt from 'bcryptjs';
 
 // Utility function to generate JWT
