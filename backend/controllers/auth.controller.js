@@ -24,8 +24,6 @@ const validateAdditionalInfo = (accountType, additionalInfo) => {
     }
     return errors;
 };
-
-// Signup controller
 export const signup = async (req, res) => {
     try {
         const { username, fullName, email, password, accountType, additionalInfo, phone, gender, age } = req.body;
@@ -59,19 +57,15 @@ export const signup = async (req, res) => {
             return res.status(400).json({ message: additionalInfoErrors.join(", ") });
         }
 
-        // Validate age
         if (isNaN(age) || age <= 0) {
             return res.status(400).json({ message: "Invalid age" });
         }
 
-        // Hash the password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Generate the email verification token
-        const emailVerificationToken = crypto.randomBytes(32).toString('hex');
+        const verificationToken = generateVerificationToken(newUser._id);
 
-        // Create a new user based on account type
         const newUser = new User({
             username,
             fullName,
@@ -82,41 +76,22 @@ export const signup = async (req, res) => {
             phone,
             gender,
             age,
-            emailVerificationToken,  // Save the verification token
-            isVerified: false  // Ensure user starts as unverified
+            emailVerificationToken: verificationToken,
         });
 
-        // Save the user
         await newUser.save();
 
-        // If the account type is professional, create a new professional account in the doctors model
-        if (accountType === 'professional') {
-            const newDoctor = new Doctor({
-                userId: newUser._id,
-                name: fullName,
-                email,
-                specialties: additionalInfo?.professionalTitle || "",
-                experience: additionalInfo?.experience || "",
-                image: null,
-                bio: null,
-                phone,
-                gender,
-                age,
-            });
-            await newDoctor.save();
-        }
+        await sendVerificationEmail(newUser.email, verificationToken);
 
         const token = generateToken(newUser._id);
         const redirectUrl = accountType === 'professional' ? '/doctor' : '/';
 
-        res.status(201).json({ 
+        res.status(201).json({
             message: "Account created successfully. Please verify your email.",
             token,
             userId: newUser._id,
             redirectUrl
         });
-
-        // Note: The next step would be to send the email with the verification token, which we can cover later.
     } catch (error) {
         console.log("Error in signup controller", error.message);
         res.status(500).json({ message: error.message });
