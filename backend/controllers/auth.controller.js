@@ -102,10 +102,13 @@ export const signup = async (req, res) => {
         }
 
         const token = generateToken(newUser._id);
+        const redirectUrl = accountType === 'professional' ? '/doctor' : '/';
+
         res.status(201).json({ 
             message: "Account created successfully",
             token,
-            userId: newUser._id
+            userId: newUser._id,
+            redirectUrl
         });
     } catch (error) {
         console.log("Error in signup controller", error.message);
