@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema(
         },
         fullName: {
             type: String,
-            required: true,            
+            required: true,
         },
         email: {
             type: String,
@@ -76,9 +76,9 @@ const userSchema = new mongoose.Schema(
             type: Boolean,
             default: false, // User starts as unverified
         },
-        emailVerificationToken: {
+        emailVerificationCode: {
             type: String,
-            default: null, // Initially no token
+            default: null, // Store the verification code
         },
         phone: {
             type: String,
