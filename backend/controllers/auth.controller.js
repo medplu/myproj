@@ -68,6 +68,9 @@ export const signup = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
+        // Generate the email verification token
+        const emailVerificationToken = crypto.randomBytes(32).toString('hex');
+
         // Create a new user based on account type
         const newUser = new User({
             username,
@@ -79,6 +82,8 @@ export const signup = async (req, res) => {
             phone,
             gender,
             age,
+            emailVerificationToken,  // Save the verification token
+            isVerified: false  // Ensure user starts as unverified
         });
 
         // Save the user
@@ -105,16 +110,19 @@ export const signup = async (req, res) => {
         const redirectUrl = accountType === 'professional' ? '/doctor' : '/';
 
         res.status(201).json({ 
-            message: "Account created successfully",
+            message: "Account created successfully. Please verify your email.",
             token,
             userId: newUser._id,
             redirectUrl
         });
+
+        // Note: The next step would be to send the email with the verification token, which we can cover later.
     } catch (error) {
         console.log("Error in signup controller", error.message);
         res.status(500).json({ message: error.message });
     }
 };
+
 
 // Login controller
 export const login = async (req, res) => {
