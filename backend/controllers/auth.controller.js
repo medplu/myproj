@@ -10,6 +10,27 @@ const generateToken = (userId) => {
         expiresIn: '15d'  // token expires in 15 days
     });
 };
+export const verifyEmail = async (req, res) => {
+    try {
+        const { token } = req.query;
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const user = await User.findOne({ _id: decoded.userId, emailVerificationToken: token });
+
+        if (!user) {
+            return res.status(400).json({ message: "Invalid or expired verification token" });
+        }
+
+        user.isVerified = true;
+        user.emailVerificationToken = undefined;
+        await user.save();
+
+        res.status(200).json({ message: "Email verified successfully" });
+    } catch (error) {
+        console.error("Error in verifyEmail controller:", error.message);
+        res.status(500).json({ message: error.message });
+    }
+};
 
 // Function to validate additional information based on account type
 const validateAdditionalInfo = (accountType, additionalInfo) => {
