@@ -27,7 +27,14 @@ cloudinary.config({
 
 const app = express();
 const server = http.createServer(app); // Create an HTTP server
-const io = new SocketIOServer(server); // Initialize socket.io with the HTTP server
+const io = new SocketIOServer(server, {
+  cors: {
+    origin: 'http://localhost:8100', // Allow requests from this origin
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  },
+});
 
 const PORT = process.env.PORT || 3000;
 
