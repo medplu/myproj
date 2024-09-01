@@ -1,7 +1,5 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import http from 'http'; // Import http module
-import { Server as SocketIOServer } from 'socket.io'; // Correct import for socket.io
 import authRoutes from './routes/auth.route.js';
 import userRoutes from './routes/user.route.js';
 import postRoutes from './routes/post.route.js';
@@ -26,16 +24,6 @@ cloudinary.config({
 });
 
 const app = express();
-const server = http.createServer(app); // Create an HTTP server
-const io = new SocketIOServer(server, {
-  cors: {
-    origin: '*', // Allow all origins temporarily
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-  },
-});
-
 const PORT = process.env.PORT || 3000;
 
 const __dirname = path.resolve();
@@ -61,20 +49,6 @@ app.use('/api/doctors', doctorRoutes);
 app.use('/api/schedules', scheduleRoutes);
 app.use('/api/payments', paymentRoutes); // Register the payment route
 app.use('/api/prescriptions', prescriptionRoutes); // Register the prescription route
-
-// WebSocket connection handler
-io.on('connection', (socket) => {
-  console.log('A user connected');
-
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
-  });
-});
-
-// Function to emit new appointment notifications
-const notifyNewAppointment = (appointment) => {
-  io.emit('newAppointment', appointment);
-};
 
 // Example function to handle appointment creation
 app.post('/api/appointments', async (req, res) => {
@@ -106,9 +80,6 @@ app.post('/api/appointments', async (req, res) => {
 
     await appointment.save();
 
-    // Notify via WebSocket
-    notifyNewAppointment(appointment);
-
     res.status(201).json(appointment);
   } catch (error) {
     console.error(error);
@@ -124,10 +95,7 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-server.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   connectMongoDB();
 });
-
-// Export the io object for use in other files
-export { io };
