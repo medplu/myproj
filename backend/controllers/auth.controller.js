@@ -173,6 +173,20 @@ export const signup = async (req, res) => {
 
         const verificationCode = generateVerificationCode();
 
+        // Create common user data
+        const commonUserData = {
+            username,
+            fullName,
+            email,
+            password: hashedPassword,
+            accountType,
+            phone,
+            gender,
+            age,
+            emailVerificationCode: verificationCode,
+            emailVerificationCodeExpiration: new Date(Date.now() + 3600000) // Set expiration time to 1 hour from now
+        };
+
         let newUser;
         if (accountType === 'professional') {
             newUser = new Doctor({
@@ -198,32 +212,24 @@ export const signup = async (req, res) => {
                     Sunday: []
                 }
             });
-        } else {
-            newUser = new User({
-                username,
-                fullName,
-                email,
-                password: hashedPassword,
-                accountType,
-                phone,
-                gender,
-                age,
-                emailVerificationCode: verificationCode,
-                emailVerificationCodeExpiration: new Date(Date.now() + 3600000) // Set expiration time to 1 hour from now
-            });
+
+            // Save doctor-specific data
+            await newUser.save();
         }
 
-        await newUser.save();
+        // Save common user data
+        const userRecord = new User(commonUserData);
+        await userRecord.save();
 
-        await sendVerificationEmail(newUser.email, verificationCode);
+        await sendVerificationEmail(userRecord.email, verificationCode);
 
-        const token = generateToken(newUser._id);
+        const token = generateToken(userRecord._id);
         const redirectUrl = accountType === 'professional' ? '/doctor' : '/';
 
         res.status(201).json({
             message: "Account created successfully. Please verify your email.",
             token,
-            userId: newUser._id,
+            userId: userRecord._id,
             redirectUrl
         });
     } catch (error) {
@@ -231,7 +237,6 @@ export const signup = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
 // Logout controller
 export const logout = async (req, res) => {
     try {
