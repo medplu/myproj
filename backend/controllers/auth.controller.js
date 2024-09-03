@@ -1,3 +1,4 @@
+import { generateTokenAndSetCookie } from '../lib/utils/generateToken.js';
 import mongoose from "mongoose";
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model.js';
