@@ -10,6 +10,45 @@ const generateToken = (userId) => {
         expiresIn: '15d'  // token expires in 15 days
     });
 };
+export const login = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(400).json({ message: "User does not exist" });
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+    
+    // Fetch doctor information if the account type is professional
+    let doctorInfo = null;
+    if (user.accountType === 'professional') {
+      doctorInfo = await Doctor.findOne({ userId: user._id }).select('-__v'); // Exclude version key
+    }
+
+    generateTokenAndSetCookie(user._id, res);
+    res.status(200).json({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      fullName: user.fullName,
+      accountType: user.accountType,
+      followers: user.followers,
+      following: user.following,
+      profileimg: user.profileimg,
+      coverimg: user.coverimg,
+      specialties: user.specialties, // Include specialties in the response
+      doctorInfo, // Include doctor information if available
+    });
+  } catch (error) {
+    console.log("Error in login controller", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
 
 // Utility function to generate a 6-digit verification code
 const generateVerificationCode = () => {
