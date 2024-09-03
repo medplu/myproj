@@ -129,6 +129,7 @@ const validateAdditionalInfo = (accountType, additionalInfo) => {
     return errors;
 };
 
+
 export const signup = async (req, res) => {
     try {
         const { username, fullName, email, password, accountType, additionalInfo, phone, gender, age } = req.body;
@@ -174,19 +175,27 @@ export const signup = async (req, res) => {
         let newUser;
         if (accountType === 'professional') {
             newUser = new Doctor({
-                username,
-                fullName,
+                userId: new mongoose.Types.ObjectId(), // Generate a new ObjectId for userId
+                name: fullName,
                 email,
-                password: hashedPassword,
-                accountType,
-                specialties: additionalInfo?.professionalTitle,
                 phone,
                 gender,
                 age,
+                password: hashedPassword,
+                accountType,
+                specialties: additionalInfo?.professionalTitle,
                 emailVerificationCode: verificationCode,
                 emailVerificationCodeExpiration: new Date(Date.now() + 3600000), // Set expiration time to 1 hour from now
-                name: fullName, // Ensure name is set
-                userId: username // Ensure userId is set
+                availability: false, // Default to false (unavailable)
+                schedule: {
+                    Monday: [],
+                    Tuesday: [],
+                    Wednesday: [],
+                    Thursday: [],
+                    Friday: [],
+                    Saturday: [],
+                    Sunday: []
+                }
             });
         } else {
             newUser = new User({
