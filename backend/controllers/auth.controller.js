@@ -198,7 +198,7 @@ export const signup = async (req, res) => {
                 age,
                 password: hashedPassword,
                 accountType,
-                specialties: additionalInfo?.professionalTitle,
+                specialties: additionalInfo?.professionalTitle || [], // Ensure specialties is an array
                 emailVerificationCode: verificationCode,
                 emailVerificationCodeExpiration: new Date(Date.now() + 3600000), // Set expiration time to 1 hour from now
                 availability: false, // Default to false (unavailable)
@@ -218,7 +218,10 @@ export const signup = async (req, res) => {
         }
 
         // Save common user data
-        const userRecord = new User(commonUserData);
+        const userRecord = new User({
+            ...commonUserData,
+            specialties: accountType === 'professional' ? additionalInfo?.professionalTitle || [] : null // Ensure specialties is set correctly
+        });
         await userRecord.save();
 
         await sendVerificationEmail(userRecord.email, verificationCode);
