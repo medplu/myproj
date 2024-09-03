@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model.js';
 import Doctor from '../models/doctor.model.js';
