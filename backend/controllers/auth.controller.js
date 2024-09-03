@@ -132,19 +132,35 @@ export const signup = async (req, res) => {
 
         const verificationCode = generateVerificationCode();
 
-        const newUser = new User({
-            username,
-            fullName,
-            email,
-            password: hashedPassword,
-            accountType,
-            specialties: additionalInfo?.professionalTitle,
-            phone,
-            gender,
-            age,
-            emailVerificationCode: verificationCode,
-            emailVerificationCodeExpiration: new Date(Date.now() + 3600000) // Set expiration time to 1 hour from now
-        });
+        let newUser;
+        if (accountType === 'professional') {
+            newUser = new Doctor({
+                username,
+                fullName,
+                email,
+                password: hashedPassword,
+                accountType,
+                specialties: additionalInfo?.professionalTitle,
+                phone,
+                gender,
+                age,
+                emailVerificationCode: verificationCode,
+                emailVerificationCodeExpiration: new Date(Date.now() + 3600000) // Set expiration time to 1 hour from now
+            });
+        } else {
+            newUser = new User({
+                username,
+                fullName,
+                email,
+                password: hashedPassword,
+                accountType,
+                phone,
+                gender,
+                age,
+                emailVerificationCode: verificationCode,
+                emailVerificationCodeExpiration: new Date(Date.now() + 3600000) // Set expiration time to 1 hour from now
+            });
+        }
 
         await newUser.save();
 
@@ -161,40 +177,6 @@ export const signup = async (req, res) => {
         });
     } catch (error) {
         console.log("Error in signup controller", error.message);
-        res.status(500).json({ message: error.message });
-    }
-};
-
-// Login controller
-export const login = async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        const user = await User.findOne({ username });
-        if (!user) {
-            return res.status(400).json({ message: "User does not exist" });
-        }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ message: "Invalid credentials" });
-        }
-
-        const token = generateToken(user._id);
-        res.status(200).json({
-            token,
-            _id: user._id,
-            username: user.username,
-            email: user.email,
-            fullName: user.fullName,
-            accountType: user.accountType,
-            followers: user.followers,
-            following: user.following,
-            profileimg: user.profileimg,
-            coverimg: user.coverimg,
-            specialties: user.specialties,
-        });
-    } catch (error) {
-        console.error("Error in login controller", error.message);
         res.status(500).json({ message: error.message });
     }
 };
