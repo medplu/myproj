@@ -2,6 +2,9 @@ import jwt from 'jsonwebtoken';
 
 const generateToken = (userId, expiresIn = '15d') => {
     try {
+        if (!process.env.JWT_SECRET_KEY) {
+            throw new Error("JWT_SECRET_KEY is not defined");
+        }
         return jwt.sign({ userId }, process.env.JWT_SECRET_KEY, { expiresIn });
     } catch (error) {
         console.error("Token generation error:", error.message);
