@@ -8,6 +8,7 @@ const generateToken = (userId, expiresIn = '15d') => {
         return jwt.sign({ userId }, process.env.JWT_SECRET_KEY, { expiresIn });
     } catch (error) {
         console.error("Token generation error:", error.message);
+        console.error("Stack trace:", error.stack);
         throw new Error("Error generating token");
     }
 };
