@@ -184,7 +184,9 @@ export const signup = async (req, res) => {
                 gender,
                 age,
                 emailVerificationCode: verificationCode,
-                emailVerificationCodeExpiration: new Date(Date.now() + 3600000) // Set expiration time to 1 hour from now
+                emailVerificationCodeExpiration: new Date(Date.now() + 3600000), // Set expiration time to 1 hour from now
+                name: fullName, // Ensure name is set
+                userId: username // Ensure userId is set
             });
         } else {
             newUser = new User({
