@@ -5,7 +5,129 @@ import User from '../models/user.model.js';
 import Doctor from '../models/doctor.model.js';
 import { sendVerificationEmail } from '../utils/email.util.js';
 import bcrypt from 'bcryptjs';
+import Client from '../models/Client'; // Import the Client model
+export const signup = async (req, res) => {
+    try {
+        const { username, fullName, email, password, accountType, additionalInfo, phone, gender, age } = req.body;
 
+        const emailRegex = /\S+@\S+\.\S+/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: "Invalid email" });
+        }
+
+        const existingUser = await User.findOne({ username });
+        if (existingUser) {
+            return res.status(400).json({ message: "Username already exists" });
+        }
+
+        const existingEmail = await User.findOne({ email });
+        if (existingEmail) {
+            return res.status(400).json({ message: "Email already exists" });
+        }
+
+        if (password.length < 6) {
+            return res.status(400).json({ message: "Password must be at least 6 characters long" });
+        }
+
+        const validAccountTypes = ['client', 'student', 'professional', 'institution'];
+        if (!validAccountTypes.includes(accountType)) {
+            return res.status(400).json({ message: "Invalid account type" });
+        }
+
+        const additionalInfoErrors = validateAdditionalInfo(accountType, additionalInfo);
+        if (additionalInfoErrors.length > 0) {
+            return res.status(400).json({ message: additionalInfoErrors.join(", ") });
+        }
+
+        if (isNaN(age) || age <= 0) {
+            return res.status(400).json({ message: "Invalid age" });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const verificationCode = generateVerificationCode();
+
+        // Create common user data
+        const commonUserData = {
+            username,
+            fullName,
+            email,
+            password: hashedPassword,
+            accountType,
+            phone,
+            gender,
+            age,
+            emailVerificationCode: verificationCode,
+            emailVerificationCodeExpiration: new Date(Date.now() + 3600000) // Set expiration time to 1 hour from now
+        };
+
+        let newUser;
+        if (accountType === 'professional') {
+            newUser = new Doctor({
+                userId: new mongoose.Types.ObjectId(), // Generate a new ObjectId for userId
+                name: fullName,
+                email,
+                phone,
+                gender,
+                age,
+                password: hashedPassword,
+                accountType,
+                specialties: additionalInfo?.professionalTitle || [], // Ensure specialties is an array
+                emailVerificationCode: verificationCode,
+                emailVerificationCodeExpiration: new Date(Date.now() + 3600000), // Set expiration time to 1 hour from now
+                availability: false, // Default to false (unavailable)
+                schedule: {
+                    Monday: [],
+                    Tuesday: [],
+                    Wednesday: [],
+                    Thursday: [],
+                    Friday: [],
+                    Saturday: [],
+                    Sunday: []
+                }
+            });
+
+            // Save doctor-specific data
+            await newUser.save();
+        }
+
+        // Save common user data
+        const userRecord = new User({
+            ...commonUserData,
+            specialties: accountType === 'professional' ? additionalInfo?.professionalTitle || [] : null // Ensure specialties is set correctly
+        });
+        await userRecord.save();
+
+        // Create and save client-specific data if account type is client
+        if (accountType === 'client') {
+            const clientRecord = new Client({
+                userId: userRecord._id,
+                name: fullName,
+                email,
+                phone,
+                gender,
+                age
+            });
+            await clientRecord.save();
+        }
+
+        await sendVerificationEmail(userRecord.email, verificationCode);
+
+        const token = generateToken(userRecord._id);
+        const redirectUrl = accountType === 'professional' ? '/doctor' : accountType === 'client' ? '/client' : '/';
+
+        res.status(201).json({
+            message: "Account created successfully. Please verify your email.",
+            token,
+            userId: userRecord._id,
+            redirectUrl
+        });
+    } catch (error) {
+        console.log("Error in signup controller", error.message);
+        res.status(500).json({ message: error.message });
+    }
+};
 // Utility function to generate JWT
 const generateToken = (userId) => {
     return jwt.sign({ userId }, process.env.JWT_SECRET_KEY, {
@@ -132,115 +254,8 @@ const validateAdditionalInfo = (accountType, additionalInfo) => {
 };
 
 
-export const signup = async (req, res) => {
-    try {
-        const { username, fullName, email, password, accountType, additionalInfo, phone, gender, age } = req.body;
 
-        const emailRegex = /\S+@\S+\.\S+/;
-        if (!emailRegex.test(email)) {
-            return res.status(400).json({ message: "Invalid email" });
-        }
 
-        const existingUser = await User.findOne({ username });
-        if (existingUser) {
-            return res.status(400).json({ message: "Username already exists" });
-        }
-
-        const existingEmail = await User.findOne({ email });
-        if (existingEmail) {
-            return res.status(400).json({ message: "Email already exists" });
-        }
-
-        if (password.length < 6) {
-            return res.status(400).json({ message: "Password must be at least 6 characters long" });
-        }
-
-        const validAccountTypes = ['client', 'student', 'professional', 'institution'];
-        if (!validAccountTypes.includes(accountType)) {
-            return res.status(400).json({ message: "Invalid account type" });
-        }
-
-        const additionalInfoErrors = validateAdditionalInfo(accountType, additionalInfo);
-        if (additionalInfoErrors.length > 0) {
-            return res.status(400).json({ message: additionalInfoErrors.join(", ") });
-        }
-
-        if (isNaN(age) || age <= 0) {
-            return res.status(400).json({ message: "Invalid age" });
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        const verificationCode = generateVerificationCode();
-
-        // Create common user data
-        const commonUserData = {
-            username,
-            fullName,
-            email,
-            password: hashedPassword,
-            accountType,
-            phone,
-            gender,
-            age,
-            emailVerificationCode: verificationCode,
-            emailVerificationCodeExpiration: new Date(Date.now() + 3600000) // Set expiration time to 1 hour from now
-        };
-
-        let newUser;
-        if (accountType === 'professional') {
-            newUser = new Doctor({
-                userId: new mongoose.Types.ObjectId(), // Generate a new ObjectId for userId
-                name: fullName,
-                email,
-                phone,
-                gender,
-                age,
-                password: hashedPassword,
-                accountType,
-                specialties: additionalInfo?.professionalTitle || [], // Ensure specialties is an array
-                emailVerificationCode: verificationCode,
-                emailVerificationCodeExpiration: new Date(Date.now() + 3600000), // Set expiration time to 1 hour from now
-                availability: false, // Default to false (unavailable)
-                schedule: {
-                    Monday: [],
-                    Tuesday: [],
-                    Wednesday: [],
-                    Thursday: [],
-                    Friday: [],
-                    Saturday: [],
-                    Sunday: []
-                }
-            });
-
-            // Save doctor-specific data
-            await newUser.save();
-        }
-
-        // Save common user data
-        const userRecord = new User({
-            ...commonUserData,
-            specialties: accountType === 'professional' ? additionalInfo?.professionalTitle || [] : null // Ensure specialties is set correctly
-        });
-        await userRecord.save();
-
-        await sendVerificationEmail(userRecord.email, verificationCode);
-
-        const token = generateToken(userRecord._id);
-        const redirectUrl = accountType === 'professional' ? '/doctor' : '/';
-
-        res.status(201).json({
-            message: "Account created successfully. Please verify your email.",
-            token,
-            userId: userRecord._id,
-            redirectUrl
-        });
-    } catch (error) {
-        console.log("Error in signup controller", error.message);
-        res.status(500).json({ message: error.message });
-    }
-};
 // Logout controller
 export const logout = async (req, res) => {
     try {
