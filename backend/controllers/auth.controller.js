@@ -5,7 +5,7 @@ import User from '../models/user.model.js';
 import Doctor from '../models/doctor.model.js';
 import { sendVerificationEmail } from '../utils/email.util.js';
 import bcrypt from 'bcryptjs';
-import Client from '../models/Client'; // Import the Client model
+import Client from '../models/client.model.js'; // Import the Client model
 export const signup = async (req, res) => {
     try {
         const { username, fullName, email, password, accountType, additionalInfo, phone, gender, age } = req.body;
