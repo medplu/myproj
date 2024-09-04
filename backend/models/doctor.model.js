@@ -37,7 +37,7 @@ const doctorSchema = new mongoose.Schema({
   },
   image: {
     type: String,
-    default: null,
+    default: 'https://res.cloudinary.com/dws2bgxg4/image/upload/v1714975960/doctor_jztjki.png',
   },
   experience: {
     type: String,
