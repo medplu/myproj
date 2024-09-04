@@ -6,134 +6,135 @@ import Doctor from '../models/doctor.model.js';
 import { sendVerificationEmail } from '../utils/email.util.js';
 import bcrypt from 'bcryptjs';
 import Client from '../models/client.model.js'; // Import the Client model
-export const signup = async (req, res) => {
-    try {
-        const { username, fullName, email, password, accountType, additionalInfo, phone, gender, age } = req.body;
 
-        const emailRegex = /\S+@\S+\.\S+/;
-        if (!emailRegex.test(email)) {
-            return res.status(400).json({ message: "Invalid email" });
-        }
-
-        const existingUser = await User.findOne({ username });
-        if (existingUser) {
-            return res.status(400).json({ message: "Username already exists" });
-        }
-
-        const existingEmail = await User.findOne({ email });
-        if (existingEmail) {
-            return res.status(400).json({ message: "Email already exists" });
-        }
-
-        if (password.length < 6) {
-            return res.status(400).json({ message: "Password must be at least 6 characters long" });
-        }
-
-        const validAccountTypes = ['client', 'student', 'professional', 'institution'];
-        if (!validAccountTypes.includes(accountType)) {
-            return res.status(400).json({ message: "Invalid account type" });
-        }
-
-        const additionalInfoErrors = validateAdditionalInfo(accountType, additionalInfo);
-        if (additionalInfoErrors.length > 0) {
-            return res.status(400).json({ message: additionalInfoErrors.join(", ") });
-        }
-
-        if (isNaN(age) || age <= 0) {
-            return res.status(400).json({ message: "Invalid age" });
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        const verificationCode = generateVerificationCode();
-
-        // Create common user data
-        const commonUserData = {
-            username,
-            fullName,
-            email,
-            password: hashedPassword,
-            accountType,
-            phone,
-            gender,
-            age,
-            emailVerificationCode: verificationCode,
-            emailVerificationCodeExpiration: new Date(Date.now() + 3600000) // Set expiration time to 1 hour from now
-        };
-
-        let newUser;
-        if (accountType === 'professional') {
-            newUser = new Doctor({
-                userId: new mongoose.Types.ObjectId(), // Generate a new ObjectId for userId
-                name: fullName,
-                email,
-                phone,
-                gender,
-                age,
-                password: hashedPassword,
-                accountType,
-                specialties: additionalInfo?.professionalTitle || [], // Ensure specialties is an array
-                emailVerificationCode: verificationCode,
-                emailVerificationCodeExpiration: new Date(Date.now() + 3600000), // Set expiration time to 1 hour from now
-                availability: false, // Default to false (unavailable)
-                schedule: {
-                    Monday: [],
-                    Tuesday: [],
-                    Wednesday: [],
-                    Thursday: [],
-                    Friday: [],
-                    Saturday: [],
-                    Sunday: []
-                }
-            });
-
-            // Save doctor-specific data
-            await newUser.save();
-        }
-
-        // Save common user data
-        const userRecord = new User({
-            ...commonUserData,
-            specialties: accountType === 'professional' ? additionalInfo?.professionalTitle || [] : null // Ensure specialties is set correctly
-        });
-        await userRecord.save();
-
-        // Create and save client-specific data if account type is client
-        if (accountType === 'client') {
-            const clientRecord = new Client({
-                userId: userRecord._id,
-                name: fullName,
-                email,
-                phone,
-                gender,
-                age
-            });
-            await clientRecord.save();
-        }
-
-        await sendVerificationEmail(userRecord.email, verificationCode);
-
-        const token = generateToken(userRecord._id);
-        const redirectUrl = accountType === 'professional' ? '/doctor' : accountType === 'client' ? '/client' : '/';
-
-        res.status(201).json({
-            message: "Account created successfully. Please verify your email.",
-            token,
-            userId: userRecord._id,
-            redirectUrl
-        });
-    } catch (error) {
-        console.log("Error in signup controller", error.message);
-        res.status(500).json({ message: error.message });
-    }
-};
-// Utility function to generate JWT
+        // Utility function to generate JWT
 const generateToken = (userId) => {
     return jwt.sign({ userId }, process.env.JWT_SECRET_KEY, {
         expiresIn: '15d'  // token expires in 15 days
     });
 };
+export const signup = async (req, res) => {
+  try {
+    const { username, fullName, email, password, accountType, additionalInfo, phone, gender, age } = req.body;
+
+    const emailRegex = /\S+@\S+\.\S+/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Invalid email" });
+    }
+
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ message: "Username already exists" });
+    }
+
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters long" });
+    }
+
+    const validAccountTypes = ['client', 'student', 'professional', 'institution'];
+    if (!validAccountTypes.includes(accountType)) {
+      return res.status(400).json({ message: "Invalid account type" });
+    }
+
+    const additionalInfoErrors = validateAdditionalInfo(accountType, additionalInfo);
+    if (additionalInfoErrors.length > 0) {
+      return res.status(400).json({ message: additionalInfoErrors.join(", ") });
+    }
+
+    if (isNaN(age) || age <= 0) {
+      return res.status(400).json({ message: "Invalid age" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const verificationCode = generateVerificationCode();
+
+    // Create common user data
+    const commonUserData = {
+      username,
+      fullName,
+      email,
+      password: hashedPassword,
+      accountType,
+      phone,
+      gender,
+      age,
+      emailVerificationCode: verificationCode,
+      emailVerificationCodeExpiration: new Date(Date.now() + 3600000) // Set expiration time to 1 hour from now
+    };
+
+    let newUser;
+    if (accountType === 'professional') {
+      newUser = new Doctor({
+        userId: new mongoose.Types.ObjectId(), // Generate a new ObjectId for userId
+        name: fullName,
+        email,
+        phone,
+        gender,
+        age,
+        password: hashedPassword,
+        accountType,
+        specialties: additionalInfo?.professionalTitle || [], // Ensure specialties is an array
+        emailVerificationCode: verificationCode,
+        emailVerificationCodeExpiration: new Date(Date.now() + 3600000), // Set expiration time to 1 hour from now
+        availability: false, // Default to false (unavailable)
+        schedule: {
+          Monday: [],
+          Tuesday: [],
+          Wednesday: [],
+          Thursday: [],
+          Friday: [],
+          Saturday: [],
+          Sunday: []
+        }
+      });
+
+      // Save doctor-specific data
+      await newUser.save();
+    }
+
+    // Save common user data
+    const userRecord = new User({
+      ...commonUserData,
+      specialties: accountType === 'professional' ? additionalInfo?.professionalTitle || [] : null // Ensure specialties is set correctly
+    });
+    await userRecord.save();
+
+    // Create and save client-specific data if account type is client
+    if (accountType === 'client') {
+      const clientRecord = new Client({
+        userId: userRecord._id,
+        name: fullName,
+        email,
+        phone,
+        gender,
+        age
+      });
+      await clientRecord.save();
+    }
+
+    await sendVerificationEmail(userRecord.email, verificationCode);
+
+    res.status(201).json({
+      message: "Account created successfully. Please verify your email."
+    });
+  } catch (error) {
+    console.log("Error in signup controller", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};         
+
+
+     
+
+      
+
 export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -141,6 +142,12 @@ export const login = async (req, res) => {
     if (!user) {
       return res.status(400).json({ message: "User does not exist" });
     }
+
+    // Check if email is verified
+    if (!user.isVerified) {
+      return res.status(400).json({ message: "Email not verified. Please verify your email." });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
@@ -152,19 +159,24 @@ export const login = async (req, res) => {
       doctorInfo = await Doctor.findOne({ userId: user._id }).select('-__v'); // Exclude version key
     }
 
-    generateTokenAndSetCookie(user._id, res);
+    // Generate token
+    const token = generateToken(user._id);
+
     res.status(200).json({
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      fullName: user.fullName,
-      accountType: user.accountType,
-      followers: user.followers,
-      following: user.following,
-      profileimg: user.profileimg,
-      coverimg: user.coverimg,
-      specialties: user.specialties, // Include specialties in the response
-      doctorInfo, // Include doctor information if available
+      token,
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        fullName: user.fullName,
+        accountType: user.accountType,
+        followers: user.followers,
+        following: user.following,
+        profileimg: user.profileimg,
+        coverimg: user.coverimg,
+        specialties: user.specialties, // Include specialties in the response
+        doctorInfo, // Include doctor information if available
+      }
     });
   } catch (error) {
     console.log("Error in login controller", error.message);
