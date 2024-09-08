@@ -6,7 +6,8 @@ import {
   getMe,
   verifyEmail,
   resendVerificationCode,
-  googleCallback  // Import the new callback function
+  googleCallback,  // Import the new callback function
+  googleAuth  // Import the new auth function
 } from '../controllers/auth.controller.js';
 import { protectRoute } from '../middleware/protectRoute.js';
 
@@ -28,5 +29,8 @@ router.post('/resend-verification', protectRoute, resendVerificationCode);
 
 // Add the new route for handling Google OAuth callback
 router.post('/google/callback', googleCallback);
+
+// Add the new route for initiating Google OAuth
+router.get('/google', googleAuth);
 
 export default router;
