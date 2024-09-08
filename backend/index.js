@@ -55,7 +55,7 @@ app.use('/api/prescriptions', prescriptionRoutes); // Register the prescription 
 const oAuth2Client = new google.auth.OAuth2(
   process.env.CLIENT_ID,
   process.env.SECRET_KEY,
-  process.env.REDIRECT
+  process.env.REDIRECT_URI
 );
 
 // Example function to get authentication URL
