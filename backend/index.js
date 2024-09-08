@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import { google } from 'googleapis'; // Import Google API
+import jwt from 'jsonwebtoken'; // Import jsonwebtoken
 import authRoutes from './routes/auth.route.js';
 import userRoutes from './routes/user.route.js';
 import postRoutes from './routes/post.route.js';
@@ -16,7 +17,7 @@ import path from 'path';
 import { v2 as cloudinary } from 'cloudinary';
 import cors from 'cors';
 
-dotenv.config();
+dotenv.config(); // Ensure this is called at the very beginning
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -51,13 +52,17 @@ app.use('/api/schedules', scheduleRoutes);
 app.use('/api/payments', paymentRoutes); // Register the payment route
 app.use('/api/prescriptions', prescriptionRoutes); // Register the prescription route
 
+// Log environment variables to verify they are loaded correctly
+console.log('CLIENT_ID:', process.env.CLIENT_ID);
+console.log('SECRET_KEY:', process.env.SECRET_KEY);
+console.log('REDIRECT_URI:', process.env.REDIRECT_URI);
+
 // Configure OAuth2 Client
 const oAuth2Client = new google.auth.OAuth2(
   process.env.CLIENT_ID,
   process.env.SECRET_KEY,
-  process.env.REDIRECT_URI // Ensure this is correctly set
+  process.env.redirect_uri // Ensure this is correctly set
 );
-console.log('Redirect URI:', process.env.REDIRECT_URI);
 
 // Endpoint to initiate OAuth flow
 app.get('/api/auth/google', (req, res) => {
@@ -66,7 +71,7 @@ app.get('/api/auth/google', (req, res) => {
     access_type: 'offline',
     scope: scopes,
     include_granted_scopes: true,
-    redirect_uri: process.env.REDIRECT_URI // Make sure this matches your Google Cloud Console
+    redirect_uri: process.env.redirect_uri // Make sure this matches your Google Cloud Console
   });
   res.redirect(authUrl);
 });
@@ -81,7 +86,7 @@ app.post('/api/auth/google/callback', async (req, res) => {
   try {
     const { tokens } = await oAuth2Client.getToken(code);
     oAuth2Client.setCredentials(tokens);
-    // Assuming you generate a token for your application here
+    // Generate a token for your application
     const appToken = generateAppToken(tokens);
     res.json({ token: appToken, redirectUrl: '/' });
   } catch (error) {
@@ -92,7 +97,12 @@ app.post('/api/auth/google/callback', async (req, res) => {
 
 function generateAppToken(tokens) {
   // Implement your token generation logic here
-  return 'your-app-token';
+  const payload = {
+    accessToken: tokens.access_token,
+    refreshToken: tokens.refresh_token,
+    expiryDate: tokens.expiry_date,
+  };
+  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 }
 
 // Example function to create a new calendar event
