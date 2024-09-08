@@ -59,8 +59,8 @@ const oAuth2Client = new google.auth.OAuth2(
 );
 console.log('Redirect URI:', process.env.REDIRECT_URI);
 
-// Example function to get authentication URL
-app.get('/google-auth', (req, res) => {
+// Endpoint to initiate OAuth flow
+app.get('/api/auth/google', (req, res) => {
   const scopes = ['https://www.googleapis.com/auth/calendar'];
   const authUrl = oAuth2Client.generateAuthUrl({
     access_type: 'offline',
@@ -70,18 +70,30 @@ app.get('/google-auth', (req, res) => {
   });
   res.redirect(authUrl);
 });
-// Example function to handle OAuth2 callback
-app.get('/google-auth/callback', async (req, res) => {
-  const code = req.query.code;
+
+// Endpoint to handle OAuth2 callback
+app.post('/api/auth/google/callback', async (req, res) => {
+  const code = req.body.code;
+  if (!code) {
+    return res.status(400).send('Missing authorization code');
+  }
+
   try {
     const { tokens } = await oAuth2Client.getToken(code);
     oAuth2Client.setCredentials(tokens);
-    res.status(200).json({ message: 'Authorization successful', tokens });
+    // Assuming you generate a token for your application here
+    const appToken = generateAppToken(tokens);
+    res.json({ token: appToken, redirectUrl: '/' });
   } catch (error) {
     console.error('Error during OAuth2 callback:', error);
     res.status(500).json({ message: 'OAuth2 callback error' });
   }
 });
+
+function generateAppToken(tokens) {
+  // Implement your token generation logic here
+  return 'your-app-token';
+}
 
 // Example function to create a new calendar event
 app.post('/create-calendar-event', async (req, res) => {
