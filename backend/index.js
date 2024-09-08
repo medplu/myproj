@@ -55,7 +55,7 @@ app.use('/api/prescriptions', prescriptionRoutes); // Register the prescription 
 const oAuth2Client = new google.auth.OAuth2(
   process.env.CLIENT_ID,
   process.env.SECRET_KEY,
-  process.env.REDIRECT_URI
+  process.env.REDIRECT_URI // Ensure this is correctly set
 );
 
 // Example function to get authentication URL
@@ -64,10 +64,10 @@ app.get('/google-auth', (req, res) => {
   const authUrl = oAuth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: scopes,
+    redirect_uri: process.env.REDIRECT_URI // Make sure this matches your Google Cloud Console
   });
   res.redirect(authUrl);
-});
-
+});S
 // Example function to handle OAuth2 callback
 app.get('/google-auth/callback', async (req, res) => {
   const code = req.query.code;
