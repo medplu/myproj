@@ -67,7 +67,7 @@ app.get('/google-auth', (req, res) => {
     redirect_uri: process.env.REDIRECT_URI // Make sure this matches your Google Cloud Console
   });
   res.redirect(authUrl);
-});S
+});
 // Example function to handle OAuth2 callback
 app.get('/google-auth/callback', async (req, res) => {
   const code = req.query.code;
