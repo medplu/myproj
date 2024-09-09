@@ -14,6 +14,8 @@ import { protectRoute } from '../middleware/protectRoute.js';
 const router = express.Router();
 
 router.get("/me", protectRoute, getMe);
+router.get('/google-auth/callback', googleCallback); // Match the exact path
+
 
 router.post('/signup', signup);
 
