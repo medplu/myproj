@@ -61,7 +61,7 @@ console.log('REDIRECT_URI:', process.env.REDIRECT_URI);
 const oAuth2Client = new google.auth.OAuth2(
   process.env.CLIENT_ID,
   process.env.SECRET_KEY,
-  process.env.redirect_uri // Ensure this is correctly set
+  process.env.REDIRECT_URI // Ensure this is correctly set
 );
 
 // Endpoint to initiate OAuth flow
@@ -71,7 +71,7 @@ app.get('/api/auth/google', (req, res) => {
     access_type: 'offline',
     scope: scopes,
     include_granted_scopes: true,
-    redirect_uri: process.env.redirect_uri // Make sure this matches your Google Cloud Console
+    redirect_uri: process.env.REDIRECT_URI // Make sure this matches your Google Cloud Console
   });
   res.redirect(authUrl);
 });
